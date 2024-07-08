@@ -1,0 +1,21 @@
+{
+  "name": "playwright-boilerplate-pom-ts",
+  "version": "1.0.0",
+  "description": "A template to help you set up a playwright framework with the Page Object Model",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test --headed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@playwright/test": "^1.45.1",
+    "@types/node": "^20.14.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "moment": "^2.30.1"
+  }
+}

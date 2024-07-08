@@ -66,3 +66,7 @@ jspm_packages/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
