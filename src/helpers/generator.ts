@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2023, Alphabet International GmbH
- */
-
 import { faker } from '@faker-js/faker';
 import moment, { Moment } from 'moment';
 

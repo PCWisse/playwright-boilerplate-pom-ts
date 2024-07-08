@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2023, Alphabet International GmbH
- */
-
 import { Locator, Page } from '@playwright/test';
 
 export type EnumDictionary<KeyType extends string | symbol | number, Value> = {

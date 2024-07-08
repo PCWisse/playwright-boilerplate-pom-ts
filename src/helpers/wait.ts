@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2023, Alphabet International GmbH
- */
-
 import { Locator, Page, errors } from '@playwright/test';
 import { Delays } from '../fixtures/constants/common.enums';
 import PageHelper from './pageHelper';

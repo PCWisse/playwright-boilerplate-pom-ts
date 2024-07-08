@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2024, Alphabet International GmbH
- */
-
 import { Page } from '@playwright/test';
 
 export default class PageHelper {

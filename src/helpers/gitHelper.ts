@@ -1,6 +1,3 @@
-/*
- * Copyright (C) 2023, Alphabet International GmbH
- */
 import { execSync } from 'child_process';
 
 export default class GitHelper {
