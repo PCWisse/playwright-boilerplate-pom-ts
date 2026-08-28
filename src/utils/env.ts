@@ -23,7 +23,16 @@ if (!parsed.success) {
 
 export const env = {
   baseURL: parsed.data.BASE_URL,
-  apiURL: parsed.data.API_URL,
+  // Playwright's `APIRequestContext` (and `new URL(path, base)`, which it
+  // uses internally) resolves relative request paths against `baseURL` with
+  // standard URL-merge rules: a base WITHOUT a trailing slash drops its last
+  // path segment instead of treating it as a directory. `API_URL` normally
+  // ends in `/api`, so an un-normalised base would silently turn
+  // `new URL('items', 'http://host/api')` into `http://host/items`, dropping
+  // `/api` and 404ing. Normalising here — once, at the source — means every
+  // consumer (the `api` Playwright project, `api.fixture.ts`, anything a
+  // template user copies) gets a safe value for free. Do not remove this.
+  apiURL: parsed.data.API_URL.endsWith('/') ? parsed.data.API_URL : `${parsed.data.API_URL}/`,
   demoPort: parsed.data.DEMO_PORT,
   username: parsed.data.TEST_USERNAME,
   password: parsed.data.TEST_PASSWORD,
