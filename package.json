@@ -1,21 +1,53 @@
 {
   "name": "playwright-boilerplate-pom-ts",
-  "version": "1.0.0",
-  "description": "A template to help you set up a playwright framework with the Page Object Model",
-  "main": "index.js",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Opinionated Playwright + TypeScript template using the Page Object Model",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "test": "npx playwright test --headed"
+    "test": "playwright test",
+    "test:ci": "playwright test --project=chromium --project=api --project=a11y --project=visual",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:headed": "playwright test --headed",
+    "test:api": "playwright test --project=api",
+    "test:a11y": "playwright test --project=a11y",
+    "test:visual": "playwright test --project=visual",
+    "test:update-snapshots": "playwright test --project=visual --update-snapshots",
+    "codegen": "playwright codegen",
+    "report": "playwright show-report",
+    "report:allure": "allure generate allure-results --clean --output allure-report && allure open allure-report",
+    "demo": "tsx demo-app/server.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "@faker-js/faker": "^8.4.1",
-    "@playwright/test": "^1.45.1",
-    "@types/node": "^20.14.10"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "moment": "^2.30.1"
+    "@axe-core/playwright": "^4.13.0",
+    "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^24.0.0",
+    "allure-commandline": "^2.43.0",
+    "allure-js-commons": "^3.11.0",
+    "allure-playwright": "^3.11.0",
+    "axe-core": "^4.13.0",
+    "date-fns": "^4.4.0",
+    "dotenv": "^17.4.2",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-playwright": "^2.11.0",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.68.0",
+    "zod": "^4.5.1"
   }
 }

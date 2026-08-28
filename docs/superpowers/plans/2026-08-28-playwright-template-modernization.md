@@ -23,28 +23,28 @@
 
 ## File Structure
 
-| Path | Responsibility |
-|---|---|
-| `demo-app/server.ts` | Dependency-free Node `http` server: static files + in-memory JSON API |
-| `demo-app/public/*.html` | Login, inventory, form, and deliberately inaccessible pages |
-| `src/utils/env.ts` | Load and zod-validate environment; fail fast before any browser starts |
-| `src/utils/generator.ts` | Random/derived test data on faker + date-fns |
-| `src/utils/wait.ts` | The one polling helper that Playwright's auto-waiting does not cover |
-| `src/components/base.component.ts` | Root-scoped component base class |
-| `src/components/table.component.ts` | Generic ARIA-role table component |
-| `src/components/nav.component.ts` | Site navigation component |
-| `src/pages/base.page.ts` | Navigation, readiness hook, shared page surface |
-| `src/pages/*.page.ts` | One page object per demo-app page |
-| `src/api/schemas.ts` | zod schemas and the types derived from them |
-| `src/api/api-client.ts` | Typed HTTP client with schema-validated responses |
-| `src/fixtures/*.fixture.ts` | One fixture module per concern |
-| `src/fixtures/index.ts` | Merged `test` export + `expect` re-export |
-| `src/setup/auth.setup.ts` | Produces `playwright/.auth/user.json` storage state |
-| `tests/{ui,api,a11y,visual}/` | Example specs, one directory per project |
-| `playwright.config.ts` | Projects, reporters, webServer, timeouts |
-| `.github/`, `.gitlab-ci.yml`, `azure-pipelines.yml`, `Jenkinsfile` | CI |
-| `docker/`, `.devcontainer/` | Reproducible browser environment |
-| `docs/` | Getting started, conventions, page objects, CI, adaptation guide |
+| Path                                                               | Responsibility                                                         |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `demo-app/server.ts`                                               | Dependency-free Node `http` server: static files + in-memory JSON API  |
+| `demo-app/public/*.html`                                           | Login, inventory, form, and deliberately inaccessible pages            |
+| `src/utils/env.ts`                                                 | Load and zod-validate environment; fail fast before any browser starts |
+| `src/utils/generator.ts`                                           | Random/derived test data on faker + date-fns                           |
+| `src/utils/wait.ts`                                                | The one polling helper that Playwright's auto-waiting does not cover   |
+| `src/components/base.component.ts`                                 | Root-scoped component base class                                       |
+| `src/components/table.component.ts`                                | Generic ARIA-role table component                                      |
+| `src/components/nav.component.ts`                                  | Site navigation component                                              |
+| `src/pages/base.page.ts`                                           | Navigation, readiness hook, shared page surface                        |
+| `src/pages/*.page.ts`                                              | One page object per demo-app page                                      |
+| `src/api/schemas.ts`                                               | zod schemas and the types derived from them                            |
+| `src/api/api-client.ts`                                            | Typed HTTP client with schema-validated responses                      |
+| `src/fixtures/*.fixture.ts`                                        | One fixture module per concern                                         |
+| `src/fixtures/index.ts`                                            | Merged `test` export + `expect` re-export                              |
+| `src/setup/auth.setup.ts`                                          | Produces `playwright/.auth/user.json` storage state                    |
+| `tests/{ui,api,a11y,visual}/`                                      | Example specs, one directory per project                               |
+| `playwright.config.ts`                                             | Projects, reporters, webServer, timeouts                               |
+| `.github/`, `.gitlab-ci.yml`, `azure-pipelines.yml`, `Jenkinsfile` | CI                                                                     |
+| `docker/`, `.devcontainer/`                                        | Reproducible browser environment                                       |
+| `docs/`                                                            | Getting started, conventions, page objects, CI, adaptation guide       |
 
 ---
 
@@ -53,6 +53,7 @@
 Removes every trace of the previous engagement and clears the way for the new structure. Nothing is preserved by rename; the useful ideas are re-implemented from scratch in later tasks.
 
 **Files:**
+
 - Delete: `src/helpers/gitHelper.ts`, `src/helpers/parserHelper.ts`, `src/helpers/pageHelper.ts`, `src/helpers/utilities.ts`, `src/helpers/generator.ts`, `src/helpers/wait.ts`
 - Delete: `src/page-objects/` (entire directory, including `shared/toolbox/table.ts` with the Alphabet copyright header)
 - Delete: `src/fixtures/constants/`, `src/fixtures/data/`, `src/fixtures/interfaces/`
@@ -133,10 +134,12 @@ in the following commits."
 Establishes strict type-checking and linting before any code exists, so no untyped code is ever written. This is why the previous `parserHelper.parseToKebabCase` could be declared `Promise<void>` while returning a string.
 
 **Files:**
+
 - Modify: `package.json` (full rewrite)
 - Create: `tsconfig.json`, `eslint.config.mjs`, `.prettierrc.json`, `.prettierignore`, `.npmrc`
 
 **Interfaces:**
+
 - Produces: the npm scripts every later task and CI pipeline calls — `lint`, `lint:fix`, `format`, `format:check`, `typecheck`, `test`, `test:ci`, `test:smoke`, `test:ui`, `test:debug`, `test:headed`, `test:api`, `test:a11y`, `test:visual`, `test:update-snapshots`, `codegen`, `report`, `report:allure`, `demo`.
 
 - [ ] **Step 1: Replace `package.json`**
@@ -197,6 +200,7 @@ Establishes strict type-checking and linting before any code exists, so no untyp
 ```
 
 Notes for the implementer:
+
 - There is no `dependencies` block. That is deliberate — see Global Constraints.
 - `moment` is gone; `date-fns` replaces it.
 - `typescript` is `^5.9.3`. Do not "upgrade" it to 7.x; `typescript-eslint` will refuse.
@@ -241,12 +245,7 @@ Expected: `typescript@5.9.x`, `@playwright/test@1.62.x`, `typescript-eslint@8.68
       "@data/*": ["src/data/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts",
-    "demo-app/**/*.ts",
-    "playwright.config.ts"
-  ]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "demo-app/**/*.ts", "playwright.config.ts"]
 }
 ```
 
@@ -289,10 +288,7 @@ export default tseslint.config(
         'error',
         { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
       ],
-      '@typescript-eslint/explicit-function-return-type': [
-        'error',
-        { allowExpressions: true },
-      ],
+      '@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
       '@typescript-eslint/no-unnecessary-condition': 'off',
     },
   },
@@ -317,10 +313,8 @@ export default tseslint.config(
       'no-restricted-syntax': [
         'error',
         {
-          selector:
-            "CallExpression[callee.property.name='waitForTimeout']",
-          message:
-            'waitForTimeout is banned. Use a web-first assertion or a locator wait instead.',
+          selector: "CallExpression[callee.property.name='waitForTimeout']",
+          message: 'waitForTimeout is banned. Use a web-first assertion or a locator wait instead.',
         },
       ],
     },
@@ -391,10 +385,12 @@ plugin rules that ban waitForTimeout and element handles."
 A deterministic target so no example test depends on a third-party site. Dependency-free: Node's built-in `http` and `fs` only, run through `tsx`.
 
 **Files:**
+
 - Create: `demo-app/server.ts`, `demo-app/data.ts`
 - Create: `demo-app/public/index.html`, `login.html`, `inventory.html`, `form.html`, `a11y.html`, `app.css`, `login.js`, `inventory.js`, `form.js`
 
 **Interfaces:**
+
 - Produces:
   - `GET /` → redirect to `/login.html`
   - `POST /api/login` `{username, password}` → `201 {token: string, username: string}`; `401 {error: string}` on bad credentials
@@ -484,9 +480,7 @@ export class ItemStore {
 }
 
 /** Returns the first validation error for an item payload, or null if valid. */
-export function validateItemInput(
-  body: unknown,
-): { error: string; field: string } | null {
+export function validateItemInput(body: unknown): { error: string; field: string } | null {
   if (typeof body !== 'object' || body === null) {
     return { error: 'Body must be a JSON object', field: 'body' };
   }
@@ -702,38 +696,98 @@ void startServer(port).then(() => {
   --accent: #2f5bd8;
   --danger: #b3261e;
 }
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
-  font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font:
+    16px/1.5 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
   color: var(--fg);
   background: var(--bg);
 }
-main { max-width: 60rem; margin: 0 auto; padding: 2rem 1.5rem; }
-h1 { font-size: 1.5rem; margin: 0 0 1.5rem; }
-nav {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border);
+main {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
-nav a { color: var(--accent); text-decoration: none; }
-nav .spacer { flex: 1; }
-table { border-collapse: collapse; width: 100%; }
-th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
-th { font-weight: 600; background: #f5f6f8; }
-label { display: block; margin: 1rem 0 0.25rem; font-weight: 500; }
-input, button { font: inherit; }
+h1 {
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem;
+}
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+nav a {
+  color: var(--accent);
+  text-decoration: none;
+}
+nav .spacer {
+  flex: 1;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  font-weight: 600;
+  background: #f5f6f8;
+}
+label {
+  display: block;
+  margin: 1rem 0 0.25rem;
+  font-weight: 500;
+}
+input,
+button {
+  font: inherit;
+}
 input {
-  width: 100%; max-width: 24rem; padding: 0.5rem 0.625rem;
-  border: 1px solid var(--border); border-radius: 4px;
+  width: 100%;
+  max-width: 24rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 button {
-  margin-top: 1.25rem; padding: 0.5rem 1rem; border: 0; border-radius: 4px;
-  background: var(--accent); color: #fff; cursor: pointer;
+  margin-top: 1.25rem;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
 }
-.error { color: var(--danger); margin-top: 0.75rem; }
-.success { color: #1a7f37; margin-top: 0.75rem; }
-.field-error { color: var(--danger); font-size: 0.875rem; margin-top: 0.25rem; }
-.timestamp { color: var(--muted); font-size: 0.875rem; }
+.error {
+  color: var(--danger);
+  margin-top: 0.75rem;
+}
+.success {
+  color: #1a7f37;
+  margin-top: 0.75rem;
+}
+.field-error {
+  color: var(--danger);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+.timestamp {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
 ```
 
 - [ ] **Step 4: Create `demo-app/public/login.html` and `login.js`**
@@ -828,7 +882,9 @@ form.addEventListener('submit', async (event) => {
       <label for="search">Search items</label>
       <input id="search" data-testid="search" type="search" />
       <table data-testid="inventory-table">
-        <caption class="timestamp">Products currently in stock</caption>
+        <caption class="timestamp">
+          Products currently in stock
+        </caption>
         <thead>
           <tr>
             <th scope="col">Name</th>
@@ -1012,7 +1068,10 @@ This page is deliberately inaccessible. The violations are intentional and docum
     <link rel="stylesheet" href="/app.css" />
     <style>
       /* Intentional violation: 1.9:1 contrast, fails WCAG AA. */
-      .low-contrast { color: #b6bcc4; background: #ffffff; }
+      .low-contrast {
+        color: #b6bcc4;
+        background: #ffffff;
+      }
     </style>
   </head>
   <body>
@@ -1096,10 +1155,12 @@ example test a deterministic target with no third-party dependency."
 ### Task 4: Environment loading and Playwright configuration
 
 **Files:**
+
 - Create: `src/utils/env.ts`, `playwright.config.ts`
 - Create: `src/utils/paths.ts`
 
 **Interfaces:**
+
 - Consumes: `demo-app/server.ts` (started via `webServer`).
 - Produces:
   - `env: { baseURL: string; apiURL: string; demoPort: number; username: string; password: string; ticketBaseUrl: string }` from `src/utils/env.ts`
@@ -1174,11 +1235,7 @@ export default defineConfig({
     toHaveScreenshot: { maxDiffPixelRatio: 0.01 },
   },
   reporter: isCI
-    ? [
-        ['github'],
-        ['blob'],
-        ['allure-playwright', { resultsDir: 'allure-results', detail: false }],
-      ]
+    ? [['github'], ['blob'], ['allure-playwright', { resultsDir: 'allure-results', detail: false }]]
     : [
         ['list'],
         ['html', { open: 'never' }],
@@ -1290,11 +1347,13 @@ template and eight projects (setup, four browsers, api, a11y, visual)."
 The generic replacement for the deleted client table toolbox. Role locators only, no sleeps.
 
 **Files:**
+
 - Create: `src/components/base.component.ts`, `src/components/table.component.ts`, `src/components/nav.component.ts`
 - Create: `src/pages/base.page.ts`
 - Create: `src/utils/wait.ts`
 
 **Interfaces:**
+
 - Produces:
   - `abstract class BaseComponent { constructor(page: Page, root: Locator); readonly root: Locator }`
   - `class TableComponent extends BaseComponent`:
@@ -1543,6 +1602,7 @@ replacing the CSS-chain-and-sleep approach of the removed toolbox."
 ### Task 6: Page objects, auth setup, POM fixture and UI examples
 
 **Files:**
+
 - Create: `src/pages/login.page.ts`, `src/pages/inventory.page.ts`, `src/pages/form.page.ts`, `src/pages/a11y.page.ts`
 - Create: `src/fixtures/pom.fixture.ts`
 - Create: `src/setup/auth.setup.ts`
@@ -1550,6 +1610,7 @@ replacing the CSS-chain-and-sleep approach of the removed toolbox."
 - Create: `tests/ui/login.spec.ts`, `tests/ui/inventory.spec.ts`, `tests/ui/form.spec.ts`, `tests/ui/network-mocking.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `BasePage`, `TableComponent`, `NavComponent` (Task 5); `env`, `STORAGE_STATE` (Task 4).
 - Produces:
   - `LoginPage`: `usernameInput`, `passwordInput`, `submitButton`, `errorMessage: Locator`; `login(username: string, password: string): Promise<void>`
@@ -1634,11 +1695,41 @@ import type { Item } from '../api/schemas';
 
 /** Mirrors the demo app's seed. Used to pin inventory data in specs. */
 export const CATALOGUE: readonly Item[] = Object.freeze([
-  { id: 'item-1', name: 'Ergonomic Keyboard', price: 89.99, quantity: 12, createdAt: '2026-01-01T00:00:00.000Z' },
-  { id: 'item-2', name: 'Mechanical Mouse', price: 45.5, quantity: 30, createdAt: '2026-01-01T00:00:00.000Z' },
-  { id: 'item-3', name: 'USB-C Hub', price: 62.0, quantity: 7, createdAt: '2026-01-01T00:00:00.000Z' },
-  { id: 'item-4', name: '27-inch Monitor', price: 329.0, quantity: 4, createdAt: '2026-01-01T00:00:00.000Z' },
-  { id: 'item-5', name: 'Laptop Stand', price: 39.95, quantity: 21, createdAt: '2026-01-01T00:00:00.000Z' },
+  {
+    id: 'item-1',
+    name: 'Ergonomic Keyboard',
+    price: 89.99,
+    quantity: 12,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'item-2',
+    name: 'Mechanical Mouse',
+    price: 45.5,
+    quantity: 30,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'item-3',
+    name: 'USB-C Hub',
+    price: 62.0,
+    quantity: 7,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'item-4',
+    name: '27-inch Monitor',
+    price: 329.0,
+    quantity: 4,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'item-5',
+    name: 'Laptop Stand',
+    price: 39.95,
+    quantity: 21,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
 ]);
 ```
 
@@ -1889,13 +1980,17 @@ test.describe('Login', () => {
     await expect(page.getByTestId('current-user')).toHaveText(STANDARD_USER.username);
   });
 
-  test('shows an error for invalid credentials', { tag: ['@regression'] }, async ({ loginPage }) => {
-    await loginPage.goto();
-    await loginPage.login(INVALID_USER.username, INVALID_USER.password);
+  test(
+    'shows an error for invalid credentials',
+    { tag: ['@regression'] },
+    async ({ loginPage }) => {
+      await loginPage.goto();
+      await loginPage.login(INVALID_USER.username, INVALID_USER.password);
 
-    await expect(loginPage.errorMessage).toBeVisible();
-    await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
-  });
+      await expect(loginPage.errorMessage).toBeVisible();
+      await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
+    },
+  );
 });
 ```
 
@@ -1976,24 +2071,20 @@ test.describe('Item form', () => {
     await expect(formPage.successMessage).toHaveText(`Created ${name}`);
   });
 
-  test(
-    'reports every invalid field at once',
-    { tag: ['@regression'] },
-    async ({ formPage }) => {
-      await formPage.createItem({ name: '', price: '-5', quantity: '2.5' });
+  test('reports every invalid field at once', { tag: ['@regression'] }, async ({ formPage }) => {
+    await formPage.createItem({ name: '', price: '-5', quantity: '2.5' });
 
-      // Soft assertions collect all three failures instead of stopping at the
-      // first one, so a single run tells you every field that is wrong.
-      await expect.soft(formPage.fieldError('name')).toHaveText('Name is required');
-      await expect
-        .soft(formPage.fieldError('price'))
-        .toHaveText('Price must be a number of 0 or more');
-      await expect
-        .soft(formPage.fieldError('quantity'))
-        .toHaveText('Quantity must be a whole number of 0 or more');
-      await expect(formPage.successMessage).toBeHidden();
-    },
-  );
+    // Soft assertions collect all three failures instead of stopping at the
+    // first one, so a single run tells you every field that is wrong.
+    await expect.soft(formPage.fieldError('name')).toHaveText('Name is required');
+    await expect
+      .soft(formPage.fieldError('price'))
+      .toHaveText('Price must be a number of 0 or more');
+    await expect
+      .soft(formPage.fieldError('quantity'))
+      .toHaveText('Quantity must be a whole number of 0 or more');
+    await expect(formPage.successMessage).toBeHidden();
+  });
 });
 ```
 
@@ -2070,12 +2161,14 @@ custom fixture."
 ### Task 7: API client, schemas, API fixture, test-data fixture and API examples
 
 **Files:**
+
 - Create: `src/api/schemas.ts`, `src/api/api-client.ts`
 - Create: `src/fixtures/api.fixture.ts`, `src/fixtures/testdata.fixture.ts`
 - Modify: `src/fixtures/index.ts`
 - Create: `tests/api/items.spec.ts`, `tests/api/validation.spec.ts`, `tests/ui/api-seeded.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `env` (Task 4), the demo API contract (Task 3), `pomTest` (Task 6).
 - Produces:
   - `src/api/schemas.ts`: `itemSchema`, `itemListSchema`, `loginResponseSchema`, `errorSchema`; types `Item`, `ItemInput`, `LoginResponse`
@@ -2188,7 +2281,9 @@ export class ApiClient {
       const issues = parsed.error.issues
         .map((issue) => `  ${issue.path.join('.') || '(root)'}: ${issue.message}`)
         .join('\n');
-      throw new Error(`${context} returned a body that does not match its schema:\n${issues}\nBody: ${raw}`);
+      throw new Error(
+        `${context} returned a body that does not match its schema:\n${issues}\nBody: ${raw}`,
+      );
     }
     return parsed.data;
   }
@@ -2450,11 +2545,13 @@ validation, negative-path tests and a UI test seeded over the API."
 ### Task 8: Accessibility fixture and examples
 
 **Files:**
+
 - Create: `src/fixtures/a11y.fixture.ts`
 - Modify: `src/fixtures/index.ts`
 - Create: `tests/a11y/accessibility.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `A11yPage`, `InventoryPage` (Task 6).
 - Produces:
   - `a11yTest` from `src/fixtures/a11y.fixture.ts` with test fixture `checkA11y: (options?: A11yCheckOptions) => Promise<A11yResult>`
@@ -2634,10 +2731,12 @@ full violation report to the test result."
 ### Task 9: Visual regression examples
 
 **Files:**
+
 - Create: `tests/visual/inventory.visual.spec.ts`, `tests/visual/component.visual.spec.ts`
 - Create: `tests/visual/__screenshots__/` (generated)
 
 **Interfaces:**
+
 - Consumes: `InventoryPage` (Task 6), `snapshotPathTemplate` and the `visual` project (Task 4).
 
 - [ ] **Step 1: Write `tests/visual/inventory.visual.spec.ts`**
@@ -2751,6 +2850,7 @@ Note for the implementer: the committed baselines are generated on **your** plat
 The built-in reporter already works. This task adds the stakeholder-facing report: severity, grouping, ticket links, attachments, and `test.step` trees.
 
 **Files:**
+
 - Create: `src/utils/reporting.ts`, `allure-categories.json`
 - Modify: `playwright.config.ts` (reporter options only)
 - Modify: `src/pages/login.page.ts`, `src/pages/form.page.ts`, `src/components/table.component.ts` (wrap multi-action methods in `test.step`)
@@ -2758,6 +2858,7 @@ The built-in reporter already works. This task adds the stakeholder-facing repor
 - Modify: `tests/ui/login.spec.ts`, `tests/api/items.spec.ts` (add Allure metadata)
 
 **Interfaces:**
+
 - Consumes: `env.ticketBaseUrl` (Task 4).
 - Produces: `src/utils/reporting.ts` exporting
   - `annotate(options: { severity?: Severity; epic?: string; feature?: string; story?: string; issue?: string; owner?: string }): Promise<void>`
@@ -2989,37 +3090,37 @@ import { annotate } from '../../src/utils/reporting';
 ```
 
 ```typescript
-  test('signs in with valid credentials', { tag: ['@smoke'] }, async ({ loginPage, page }) => {
-    await annotate({
-      severity: 'blocker',
-      epic: 'Authentication',
-      feature: 'Sign in',
-      story: 'A registered user can sign in',
-      issue: 'SHOP-101',
-    });
-
-    await loginPage.goto();
-    await loginPage.login(STANDARD_USER.username, STANDARD_USER.password);
-
-    await expect(page.getByRole('heading', { name: 'Inventory', level: 1 })).toBeVisible();
-    await expect(page.getByTestId('current-user')).toHaveText(STANDARD_USER.username);
+test('signs in with valid credentials', { tag: ['@smoke'] }, async ({ loginPage, page }) => {
+  await annotate({
+    severity: 'blocker',
+    epic: 'Authentication',
+    feature: 'Sign in',
+    story: 'A registered user can sign in',
+    issue: 'SHOP-101',
   });
 
-  test('shows an error for invalid credentials', { tag: ['@regression'] }, async ({ loginPage }) => {
-    await annotate({
-      severity: 'critical',
-      epic: 'Authentication',
-      feature: 'Sign in',
-      story: 'Invalid credentials are rejected',
-      issue: 'SHOP-102',
-    });
+  await loginPage.goto();
+  await loginPage.login(STANDARD_USER.username, STANDARD_USER.password);
 
-    await loginPage.goto();
-    await loginPage.login(INVALID_USER.username, INVALID_USER.password);
+  await expect(page.getByRole('heading', { name: 'Inventory', level: 1 })).toBeVisible();
+  await expect(page.getByTestId('current-user')).toHaveText(STANDARD_USER.username);
+});
 
-    await expect(loginPage.errorMessage).toBeVisible();
-    await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
+test('shows an error for invalid credentials', { tag: ['@regression'] }, async ({ loginPage }) => {
+  await annotate({
+    severity: 'critical',
+    epic: 'Authentication',
+    feature: 'Sign in',
+    story: 'Invalid credentials are rejected',
+    issue: 'SHOP-102',
   });
+
+  await loginPage.goto();
+  await loginPage.login(INVALID_USER.username, INVALID_USER.password);
+
+  await expect(loginPage.errorMessage).toBeVisible();
+  await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
+});
 ```
 
 In `tests/api/items.spec.ts`, add the same import and annotate the first test:
@@ -3029,20 +3130,20 @@ import { annotate } from '../../src/utils/reporting';
 ```
 
 ```typescript
-  test('lists the seeded catalogue', { tag: ['@smoke', '@api'] }, async ({ api }) => {
-    await annotate({
-      severity: 'critical',
-      epic: 'Catalogue',
-      feature: 'Items API',
-      story: 'Listing items',
-      issue: 'SHOP-201',
-    });
-
-    const items = await api.listItems();
-
-    expect(items.length).toBeGreaterThanOrEqual(5);
-    expect(items.map((item) => item.name)).toContain('Ergonomic Keyboard');
+test('lists the seeded catalogue', { tag: ['@smoke', '@api'] }, async ({ api }) => {
+  await annotate({
+    severity: 'critical',
+    epic: 'Catalogue',
+    feature: 'Items API',
+    story: 'Listing items',
+    issue: 'SHOP-201',
   });
+
+  const items = await api.listItems();
+
+  expect(items.length).toBeGreaterThanOrEqual(5);
+  expect(items.map((item) => item.name)).toContain('Ergonomic Keyboard');
+});
 ```
 
 - [ ] **Step 7: Run everything and generate the Allure report**
@@ -3081,10 +3182,12 @@ the page objects."
 ### Task 11: GitHub Actions and Dependabot
 
 **Files:**
+
 - Modify: `.github/workflows/playwright.yml` (full rewrite)
 - Create: `.github/workflows/nightly.yml`, `.github/dependabot.yml`
 
 **Interfaces:**
+
 - Consumes: the `lint`, `typecheck`, `test:ci` npm scripts (Task 2); the `blob` and `allure-playwright` reporters (Tasks 4 and 10).
 
 - [ ] **Step 1: Replace `.github/workflows/playwright.yml`**
@@ -3412,6 +3515,7 @@ Expected: all jobs succeed. If the `visual` tests fail on their first CI run, th
 Same shape as the GitHub workflow, so the template works wherever the assignment lands.
 
 **Files:**
+
 - Create: `.gitlab-ci.yml`, `azure-pipelines.yml`, `Jenkinsfile`
 
 - [ ] **Step 1: Create `.gitlab-ci.yml`**
@@ -3710,6 +3814,7 @@ report, and mirror the GitHub workflow's structure."
 Reproducible browser versions, and the only reliable way to regenerate Linux visual baselines from a non-Linux machine.
 
 **Files:**
+
 - Create: `docker/Dockerfile`, `docker/docker-compose.yml`, `.dockerignore`
 - Create: `.devcontainer/devcontainer.json`
 
@@ -3827,6 +3932,7 @@ the Linux environment used to generate CI-matching visual baselines."
 ### Task 14: Git hooks — Husky, lint-staged, commitlint
 
 **Files:**
+
 - Modify: `package.json` (add three devDependencies, a `prepare` script and a `lint-staged` block)
 - Create: `.husky/pre-commit`, `.husky/commit-msg`, `commitlint.config.mjs`
 
@@ -3887,7 +3993,21 @@ export default {
     'scope-enum': [
       2,
       'always',
-      ['api', 'a11y', 'ci', 'components', 'config', 'demo-app', 'deps', 'docker', 'docs', 'fixtures', 'reporting', 'ui', 'visual'],
+      [
+        'api',
+        'a11y',
+        'ci',
+        'components',
+        'config',
+        'demo-app',
+        'deps',
+        'docker',
+        'docs',
+        'fixtures',
+        'reporting',
+        'ui',
+        'visual',
+      ],
     ],
     'header-max-length': [2, 'always', 100],
   },
@@ -3920,12 +4040,13 @@ Expected: the hooks run during this very commit and pass.
 ### Task 15: README and documentation
 
 **Files:**
+
 - Modify: `README.md` (full rewrite)
 - Create: `docs/getting-started.md`, `docs/conventions.md`, `docs/writing-page-objects.md`, `docs/ci.md`, `docs/adapting-to-a-new-project.md`
 
 - [ ] **Step 1: Rewrite `README.md`**
 
-```markdown
+````markdown
 # Playwright Boilerplate — POM + TypeScript
 
 An opinionated, ready-to-use Playwright template: page objects, composable
@@ -3941,38 +4062,39 @@ npx playwright install --with-deps
 cp .env.example .env
 npm test
 ```
+````
 
 Everything runs against the bundled demo app in `demo-app/`, so the suite is
 green on a fresh clone with no configuration.
 
 ## What is in the box
 
-| Area | What you get |
-|---|---|
-| Structure | Page objects, root-scoped components, fixtures split by concern and merged with `mergeTests` |
-| UI examples | `storageState` auth, table interaction, form validation with soft assertions, network mocking, `@smoke`/`@regression` tags |
-| API examples | Typed client, zod-validated responses, CRUD, negative paths, a UI test seeded over the API |
-| Accessibility | `@axe-core/playwright` fixture with scoping, exclusions and attached violation reports |
-| Visual | Full-page and component snapshots, masking, per-project/platform baselines |
-| Reporting | Built-in HTML merged across shards, plus Allure with history, severities and ticket links |
-| CI | GitHub Actions (+ nightly + Dependabot), GitLab CI, Azure Pipelines, Jenkins |
-| Tooling | TypeScript strict, ESLint with type-aware and Playwright rules, Prettier, Husky, Docker, devcontainer |
+| Area          | What you get                                                                                                               |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Structure     | Page objects, root-scoped components, fixtures split by concern and merged with `mergeTests`                               |
+| UI examples   | `storageState` auth, table interaction, form validation with soft assertions, network mocking, `@smoke`/`@regression` tags |
+| API examples  | Typed client, zod-validated responses, CRUD, negative paths, a UI test seeded over the API                                 |
+| Accessibility | `@axe-core/playwright` fixture with scoping, exclusions and attached violation reports                                     |
+| Visual        | Full-page and component snapshots, masking, per-project/platform baselines                                                 |
+| Reporting     | Built-in HTML merged across shards, plus Allure with history, severities and ticket links                                  |
+| CI            | GitHub Actions (+ nightly + Dependabot), GitLab CI, Azure Pipelines, Jenkins                                               |
+| Tooling       | TypeScript strict, ESLint with type-aware and Playwright rules, Prettier, Husky, Docker, devcontainer                      |
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `npm test` | Run every project |
-| `npm run test:ci` | Chromium + api + a11y + visual (what CI runs on a PR) |
-| `npm run test:smoke` | Only `@smoke` tests |
-| `npm run test:ui` | Playwright UI mode with time-travel debugging |
-| `npm run test:debug` | Step through with the Playwright inspector |
-| `npm run test:visual` / `test:update-snapshots` | Run / regenerate visual baselines |
-| `npm run codegen` | Record a test and generate locators |
-| `npm run report` | Open the built-in HTML report |
-| `npm run report:allure` | Generate and open the Allure report (needs a JVM) |
-| `npm run demo` | Start the bundled demo app on its own |
-| `npm run lint` / `typecheck` / `format` | Static analysis |
+| Command                                         | What it does                                          |
+| ----------------------------------------------- | ----------------------------------------------------- |
+| `npm test`                                      | Run every project                                     |
+| `npm run test:ci`                               | Chromium + api + a11y + visual (what CI runs on a PR) |
+| `npm run test:smoke`                            | Only `@smoke` tests                                   |
+| `npm run test:ui`                               | Playwright UI mode with time-travel debugging         |
+| `npm run test:debug`                            | Step through with the Playwright inspector            |
+| `npm run test:visual` / `test:update-snapshots` | Run / regenerate visual baselines                     |
+| `npm run codegen`                               | Record a test and generate locators                   |
+| `npm run report`                                | Open the built-in HTML report                         |
+| `npm run report:allure`                         | Generate and open the Allure report (needs a JVM)     |
+| `npm run demo`                                  | Start the bundled demo app on its own                 |
+| `npm run lint` / `typecheck` / `format`         | Static analysis                                       |
 
 ## Documentation
 
@@ -3986,7 +4108,8 @@ green on a fresh clone with no configuration.
 
 Node 20 or newer. A JDK 17+ is needed only to generate the Allure report
 locally; CI provisions it automatically.
-```
+
+````
 
 - [ ] **Step 2: Create `docs/getting-started.md`**
 
@@ -3999,7 +4122,7 @@ locally; CI provisions it automatically.
 npm ci
 npx playwright install --with-deps
 cp .env.example .env
-```
+````
 
 ## Run the suite
 
@@ -4037,14 +4160,15 @@ one. You do not need to reproduce the failure locally to inspect it.
 browser starts. A missing or malformed variable fails immediately with the
 offending field name rather than surfacing as a confusing timeout.
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `BASE_URL` | `http://127.0.0.1:4173` | Application under test |
-| `API_URL` | `http://127.0.0.1:4173/api` | API under test |
-| `DEMO_PORT` | `4173` | Port for the bundled demo app |
-| `TEST_USERNAME` / `TEST_PASSWORD` | demo credentials | Used by `auth.setup.ts` |
-| `TICKET_BASE_URL` | `https://example.invalid/browse/` | Prefix for Allure issue links |
-```
+| Variable                          | Default                           | Purpose                       |
+| --------------------------------- | --------------------------------- | ----------------------------- |
+| `BASE_URL`                        | `http://127.0.0.1:4173`           | Application under test        |
+| `API_URL`                         | `http://127.0.0.1:4173/api`       | API under test                |
+| `DEMO_PORT`                       | `4173`                            | Port for the bundled demo app |
+| `TEST_USERNAME` / `TEST_PASSWORD` | demo credentials                  | Used by `auth.setup.ts`       |
+| `TICKET_BASE_URL`                 | `https://example.invalid/browse/` | Prefix for Allure issue links |
+
+````
 
 - [ ] **Step 3: Create `docs/conventions.md`**
 
@@ -4071,14 +4195,14 @@ Chain and filter rather than indexing:
 
 ```typescript
 page.getByRole('row').filter({ hasText: 'Ergonomic Keyboard' }).getByRole('cell').first();
-```
+````
 
 ## Assertions
 
 Only web-first assertions, which retry until the timeout:
 
 ```typescript
-await expect(locator).toBeVisible();          // yes
+await expect(locator).toBeVisible(); // yes
 expect(await locator.isVisible()).toBe(true); // no — lint error
 ```
 
@@ -4111,7 +4235,8 @@ fixture, which also cleans up in teardown.
 
 Tests must not depend on sites you do not control. Mock at the network boundary
 with `page.route` — see `tests/ui/network-mocking.spec.ts`.
-```
+
+````
 
 - [ ] **Step 4: Create `docs/writing-page-objects.md`**
 
@@ -4144,7 +4269,7 @@ export class LoginPage extends BasePage {
     });
   }
 }
-```
+````
 
 Locators are created in the constructor and are lazy — nothing touches the page
 until an action or assertion runs, so constructing a page object is free.
@@ -4181,7 +4306,8 @@ leave single-action methods alone.
 3. It is now available as a fixture in every spec: `async ({ myPage }) => {}`.
 
 Fixtures are lazy — adding one costs nothing to tests that do not name it.
-```
+
+````
 
 - [ ] **Step 5: Create `docs/ci.md`**
 
@@ -4214,7 +4340,7 @@ job merges them:
 ```bash
 npx playwright merge-reports --reporter html ./all-blob-reports
 npx allure generate allure-results --clean --output allure-report
-```
+````
 
 The built-in HTML report is the default and needs no toolchain. Allure adds
 severity, epic/feature/story grouping, ticket links and trend graphs across runs
@@ -4251,7 +4377,8 @@ browser changes with it.
 
 `SHARD_TOTAL` is 4 everywhere. Raise it if the suite grows; each shard is an
 independent runner, and the merge step handles any count.
-```
+
+````
 
 - [ ] **Step 6: Create `docs/adapting-to-a-new-project.md`**
 
@@ -4270,7 +4397,7 @@ API_URL=https://staging.your-app.example.com/api
 TEST_USERNAME=...
 TEST_PASSWORD=...
 TICKET_BASE_URL=https://your-tracker.example.com/browse/
-```
+````
 
 Credentials belong in your CI secret store, never in a committed file.
 
@@ -4338,14 +4465,15 @@ Commit the PNGs. Without this the visual job fails on its first CI run.
 
 `commitlint.config.mjs` lists the scopes this template uses. Replace them with
 your project's areas, or delete the `scope-enum` rule.
-```
+
+````
 
 - [ ] **Step 7: Verify every documented command actually works**
 
 ```bash
 npm run lint && npm run typecheck && npm run format:check
 npm test
-```
+````
 
 Expected: all green. Then confirm the README's command table matches
 `package.json`:

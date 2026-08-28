@@ -31,15 +31,15 @@ delete the demo app, start writing page objects.
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| Reset depth | Keep the `src/` + `tests/` shape, rewrite the contents | Layout is sound; the helper bodies carry client IP and untyped code |
-| Git history | Left intact (no squash) | Template stays private; revisit before any public release |
-| CI platforms | GitHub Actions, GitLab CI, Azure Pipelines, Jenkins | Assignments do not always land on GitHub |
-| Reporting | Built-in `html` + `blob` merge published to GitHub Pages, **plus Allure** | Built-in report is the zero-dependency default; Allure adds history, trends, severity and ticket links that stakeholders ask for |
-| Example breadth | UI + POM + fixtures, API, a11y (axe), visual regression | All four are routinely asked for on assignments |
-| Demo target | Bundled mini app behind Playwright `webServer` | Deterministic; never breaks when a third-party site changes |
-| Tooling | TS strict + ESLint + Prettier, date-fns (drop moment), Docker + devcontainer, Husky + lint-staged + commitlint | Full team-grade baseline |
+| Decision        | Choice                                                                                                         | Rationale                                                                                                                        |
+| --------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Reset depth     | Keep the `src/` + `tests/` shape, rewrite the contents                                                         | Layout is sound; the helper bodies carry client IP and untyped code                                                              |
+| Git history     | Left intact (no squash)                                                                                        | Template stays private; revisit before any public release                                                                        |
+| CI platforms    | GitHub Actions, GitLab CI, Azure Pipelines, Jenkins                                                            | Assignments do not always land on GitHub                                                                                         |
+| Reporting       | Built-in `html` + `blob` merge published to GitHub Pages, **plus Allure**                                      | Built-in report is the zero-dependency default; Allure adds history, trends, severity and ticket links that stakeholders ask for |
+| Example breadth | UI + POM + fixtures, API, a11y (axe), visual regression                                                        | All four are routinely asked for on assignments                                                                                  |
+| Demo target     | Bundled mini app behind Playwright `webServer`                                                                 | Deterministic; never breaks when a third-party site changes                                                                      |
+| Tooling         | TS strict + ESLint + Prettier, date-fns (drop moment), Docker + devcontainer, Husky + lint-staged + commitlint | Full team-grade baseline                                                                                                         |
 
 ## Client-IP scrub (blocking, phase 1)
 
@@ -47,7 +47,7 @@ The repo currently carries material from a previous engagement. All of it is
 removed before anything else is built:
 
 - `src/page-objects/shared/toolbox/table.ts` — `Copyright (C) 2024, Alphabet
-  International GmbH` header, and the Alphabet design-system selectors
+International GmbH` header, and the Alphabet design-system selectors
   `.al-label` and `al-ds-icon-checked`.
 - `src/helpers/parserHelper.ts` — the "used to make branch names easier to
   handle for TDS" comment and `removeSpecialCharacters`, which existed only for
@@ -220,23 +220,23 @@ The template is a worked demonstration of Playwright's official best-practices
 guide. Each recommendation maps to something concrete, and every rule that can
 be enforced by a linter is enforced rather than documented.
 
-| Recommendation | How the template satisfies it |
-|---|---|
-| Test user-visible behaviour | Page objects expose intention-revealing methods; assertions target rendered text, roles and ARIA state, never CSS classes or internals |
-| Use locators, prefer user-facing attributes | Role/label/text locators first, `getByTestId` second, CSS/XPath only where nothing else works and with a comment saying why; `docs/writing-page-objects.md` states the priority order |
-| Use chaining and filtering | `BaseComponent` scopes every locator to a parent; `TableComponent` finds rows with `.filter({ hasText })` rather than index arithmetic |
-| Use web-first assertions | Only `await expect(locator)` matchers; `eslint-plugin-playwright`'s `prefer-web-first-assertions` and `no-element-handle` make the alternative a lint error |
-| Make tests isolated | No shared module-level state; the test-data fixture generates and cleans up per test; auth is a `setup` project producing `storageState`, not a shared logged-in session |
-| Avoid third-party dependencies | The bundled demo app is the only target; `page.route` mocking is demonstrated for the case where a real dependency must be stubbed |
-| Test across all browsers | Chromium, Firefox, WebKit and mobile-chrome projects |
-| Keep Playwright updated | Dependabot config (`.github/dependabot.yml`) grouping Playwright and browser-related updates weekly |
-| Lint your tests | ESLint flat config with type-aware `typescript-eslint`, `@typescript-eslint/no-floating-promises` (catches missing `await`), and `eslint-plugin-playwright`'s recommended set; `tsc --noEmit` runs as a CI job |
-| Run tests on CI on every commit/PR | All four pipelines trigger on push and pull request |
-| Optimize browser downloads on CI | PR runs install `chromium` only (`npx playwright install chromium --with-deps`); the nightly workflow installs all browsers |
-| Use parallelism and sharding | `fullyParallel: true`, a sharded CI matrix, and `--shard=i/n` in every pipeline |
-| Configure debugging | `test:ui`, `test:debug`, `test:headed`, `codegen`, and `report` npm scripts; `trace: 'on-first-retry'` so CI failures always have a trace |
-| Use soft assertions | Demonstrated in the form example, where several field-level checks are collected before the test ends |
-| Consistent OS for visual tests | The `visual` project is chromium-only, `snapshotPathTemplate` keys baselines by project and platform, and the Docker image lets baselines be generated on the same Linux image CI uses |
+| Recommendation                              | How the template satisfies it                                                                                                                                                                                  |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Test user-visible behaviour                 | Page objects expose intention-revealing methods; assertions target rendered text, roles and ARIA state, never CSS classes or internals                                                                         |
+| Use locators, prefer user-facing attributes | Role/label/text locators first, `getByTestId` second, CSS/XPath only where nothing else works and with a comment saying why; `docs/writing-page-objects.md` states the priority order                          |
+| Use chaining and filtering                  | `BaseComponent` scopes every locator to a parent; `TableComponent` finds rows with `.filter({ hasText })` rather than index arithmetic                                                                         |
+| Use web-first assertions                    | Only `await expect(locator)` matchers; `eslint-plugin-playwright`'s `prefer-web-first-assertions` and `no-element-handle` make the alternative a lint error                                                    |
+| Make tests isolated                         | No shared module-level state; the test-data fixture generates and cleans up per test; auth is a `setup` project producing `storageState`, not a shared logged-in session                                       |
+| Avoid third-party dependencies              | The bundled demo app is the only target; `page.route` mocking is demonstrated for the case where a real dependency must be stubbed                                                                             |
+| Test across all browsers                    | Chromium, Firefox, WebKit and mobile-chrome projects                                                                                                                                                           |
+| Keep Playwright updated                     | Dependabot config (`.github/dependabot.yml`) grouping Playwright and browser-related updates weekly                                                                                                            |
+| Lint your tests                             | ESLint flat config with type-aware `typescript-eslint`, `@typescript-eslint/no-floating-promises` (catches missing `await`), and `eslint-plugin-playwright`'s recommended set; `tsc --noEmit` runs as a CI job |
+| Run tests on CI on every commit/PR          | All four pipelines trigger on push and pull request                                                                                                                                                            |
+| Optimize browser downloads on CI            | PR runs install `chromium` only (`npx playwright install chromium --with-deps`); the nightly workflow installs all browsers                                                                                    |
+| Use parallelism and sharding                | `fullyParallel: true`, a sharded CI matrix, and `--shard=i/n` in every pipeline                                                                                                                                |
+| Configure debugging                         | `test:ui`, `test:debug`, `test:headed`, `codegen`, and `report` npm scripts; `trace: 'on-first-retry'` so CI failures always have a trace                                                                      |
+| Use soft assertions                         | Demonstrated in the form example, where several field-level checks are collected before the test ends                                                                                                          |
+| Consistent OS for visual tests              | The `visual` project is chromium-only, `snapshotPathTemplate` keys baselines by project and platform, and the Docker image lets baselines be generated on the same Linux image CI uses                         |
 
 ## Reporting
 
