@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in — Demo Shop</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Sign in</h1>
+      <form id="login-form" data-testid="login-form" novalidate>
+        <label for="username">Username</label>
+        <input id="username" name="username" data-testid="username" autocomplete="username" />
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          data-testid="password"
+          autocomplete="current-password"
+        />
+        <button type="submit" data-testid="login-submit">Sign in</button>
+      </form>
+      <p class="error" data-testid="login-error" role="alert" hidden></p>
+    </main>
+    <script src="/login.js"></script>
+  </body>
+</html>
