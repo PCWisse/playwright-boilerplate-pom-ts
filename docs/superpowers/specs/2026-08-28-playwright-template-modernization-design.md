@@ -106,15 +106,15 @@ src/
     schemas.ts                        zod response schemas
   data/
     users.ts
-    types.ts
+    catalogue.ts
   utils/
     generator.ts                      faker + date-fns
     env.ts                            typed, validated environment loading
+    paths.ts                          storage-state location
+    mock.ts                           page.route helper for pinning data
     wait.ts
-    logger.ts
   setup/
     auth.setup.ts                     produces storageState
-    global.setup.ts, global.teardown.ts
 tests/
   ui/  api/  a11y/  visual/
 docs/
@@ -299,6 +299,17 @@ workflow that runs the full cross-browser suite rather than the smoke subset.
 - Retries are limited to CI and paired with `trace: 'on-first-retry'`, so the
   first failure is always captured.
 
+## Test isolation against a shared demo store
+
+The demo app holds one in-memory store shared by every Playwright worker, and
+the form and API examples add rows to it. Any spec asserting on an exact row
+count therefore pins its own data with `mockItems()` (`page.route` over
+`/api/items`) rather than reading whatever the store happens to contain. Specs
+that exercise the real API assert relationally — "contains", "no longer
+contains" — or search for a name unique to their own fixture data. This is the
+same "control your test data" guidance the best-practices guide gives, applied
+to the template's own examples.
+
 ## Verification
 
 The template's own correctness is verified by running it: `npm run lint`,
@@ -310,7 +321,7 @@ all pass locally and in CI. Because the demo app is committed and served by
 
 1. Scrub client IP; toolchain (TypeScript strict + tsconfig, ESLint flat config
    with eslint-plugin-playwright, Prettier, dependency refresh to Playwright
-   1.62 / faker 10 / TypeScript 7, moment → date-fns, everything to
+   1.62 / faker 10 / TypeScript 5.9, moment → date-fns, everything to
    `devDependencies`).
 2. Demo app and `playwright.config.ts`.
 3. Fixtures, base page/component, page objects, UI examples.
