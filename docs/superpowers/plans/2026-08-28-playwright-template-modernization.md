@@ -1373,7 +1373,7 @@ The generic replacement for the deleted client table toolbox. Role locators only
   - `abstract class BasePage`:
     - `protected abstract readonly path: string`
     - `readonly page: Page`
-    - `readonly loadingIndicator: Locator` (overridable via `protected loadingIndicatorTestId`)
+    - `get loadingIndicator(): Locator | null` — null unless the subclass sets `protected loadingIndicatorTestId`
     - `goto(): Promise<void>`
     - `waitUntilLoaded(): Promise<void>`
   - `pollUntil(predicate: () => Promise<boolean>, options): Promise<void>` from `src/utils/wait.ts`
