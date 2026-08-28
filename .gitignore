@@ -70,3 +70,14 @@ jspm_packages/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.superpowers/
+
+# Reporting output
+allure-results/
+allure-report/
+blob-report/
+playwright-report/
+test-results/
+
+# Auth state produced by src/setup/auth.setup.ts
+playwright/.auth/
