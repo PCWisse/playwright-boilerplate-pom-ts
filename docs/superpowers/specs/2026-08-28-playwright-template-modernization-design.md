@@ -33,7 +33,7 @@ delete the demo app, start writing page objects.
 | CI platforms | GitHub Actions, GitLab CI, Azure Pipelines, Jenkins | Assignments do not always land on GitHub |
 | Reporting | Built-in `html` + `blob` merge, published to GitHub Pages | Zero extra dependencies; Allure was deliberately removed earlier |
 | Example breadth | UI + POM + fixtures, API, a11y (axe), visual regression | All four are routinely asked for on assignments |
-| Demo target | Bundled static mini app behind Playwright `webServer` | Deterministic; never breaks when a third-party site changes |
+| Demo target | Bundled mini app behind Playwright `webServer` | Deterministic; never breaks when a third-party site changes |
 | Tooling | TS strict + ESLint + Prettier, date-fns (drop moment), Docker + devcontainer, Husky + lint-staged + commitlint | Full team-grade baseline |
 
 ## Client-IP scrub (blocking, phase 1)
@@ -58,6 +58,16 @@ Git history retains this material (commit `8da384c`). That is acceptable while
 the repository is private. If it is ever published, history must be squashed to
 a fresh initial commit first — recorded here so the decision is not forgotten.
 
+## Demo app
+
+`demo-app/` is a single dependency-free Node `http` server (`server.ts`, run
+through `tsx`) that serves four static pages — login, inventory table, form, and
+a deliberately inaccessible page — plus an in-memory JSON API under `/api` with
+full CRUD. State resets on restart, so the API examples are repeatable. The
+whole directory is deletable in one step when the template is adapted to a real
+project; `docs/adapting-to-a-new-project.md` covers exactly what to change after
+deleting it.
+
 ## Repository layout
 
 ```
@@ -68,7 +78,7 @@ a fresh initial commit first — recorded here so the decision is not forgotten.
 azure-pipelines.yml
 Jenkinsfile
 docker/Dockerfile, docker/docker-compose.yml
-demo-app/                             static app + tiny JSON API stub
+demo-app/                             pages/ (HTML+CSS+JS) and server.ts (Node http)
 src/
   fixtures/
     index.ts                          merged `test` export (mergeTests)
