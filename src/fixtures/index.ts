@@ -1,6 +1,14 @@
-import { expect } from '@playwright/test';
+import { expect, mergeTests } from '@playwright/test';
 
 import { pomTest } from './pom.fixture';
+import { testDataTest } from './testdata.fixture';
 
-export const test = pomTest;
+/**
+ * The single `test` object every spec imports.
+ *
+ * `testDataTest` extends `apiTest`, so merging it also brings in the `api` and
+ * `authToken` fixtures. Fixtures are lazy: a spec that never names `api` never
+ * pays for the login.
+ */
+export const test = mergeTests(pomTest, testDataTest);
 export { expect };
