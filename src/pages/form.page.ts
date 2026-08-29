@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { test, type Locator, type Page } from '@playwright/test';
 
 import { NavComponent } from '../components/nav.component';
 import { BasePage } from './base.page';
@@ -36,9 +36,11 @@ export class FormPage extends BasePage {
   }
 
   async createItem(input: ItemFormInput): Promise<void> {
-    await this.nameInput.fill(input.name);
-    await this.priceInput.fill(input.price);
-    await this.quantityInput.fill(input.quantity);
-    await this.submitButton.click();
+    await test.step(`Create item "${input.name}"`, async () => {
+      await this.nameInput.fill(input.name);
+      await this.priceInput.fill(input.price);
+      await this.quantityInput.fill(input.quantity);
+      await this.submitButton.click();
+    });
   }
 }

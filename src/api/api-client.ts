@@ -1,4 +1,4 @@
-import type { APIRequestContext, APIResponse } from '@playwright/test';
+import { test, type APIRequestContext, type APIResponse } from '@playwright/test';
 import type { ZodType } from 'zod';
 
 import {
@@ -56,6 +56,24 @@ export class ApiClient {
     expectedStatus: number,
   ): Promise<T> {
     const raw = await response.text();
+
+    // Best-effort: `test.info()` throws whenever no test is running, and this
+    // class is reachable from places where that is true — a `globalSetup`, a
+    // worker-fixture teardown, or any plain script that constructs an
+    // `ApiClient`. (Worker-fixture *setup*, such as `authToken` in
+    // `src/fixtures/api.fixture.ts`, does run inside the first test that asks
+    // for it, so that path attaches normally.) A missing attachment must never
+    // turn a passing request into a failure; the body is still included in the
+    // error messages below.
+    try {
+      await test.info().attach(`${context} response`, {
+        body: raw === '' ? '(empty body)' : raw,
+        contentType: 'application/json',
+      });
+    } catch {
+      // Outside a test scope; the error is still thrown below with the body.
+    }
+
     if (response.status() !== expectedStatus) {
       throw new Error(
         `${context} expected HTTP ${String(expectedStatus)} but got ${String(response.status())}.\n` +

@@ -1,8 +1,17 @@
 import { randomItemName, randomPrice, randomQuantity } from '../../src/utils/generator';
 import { expect, test } from '../../src/fixtures';
+import { annotate } from '../../src/utils/reporting';
 
 test.describe('Items API', () => {
   test('lists the seeded catalogue', { tag: ['@smoke', '@api'] }, async ({ api }) => {
+    await annotate({
+      severity: 'critical',
+      epic: 'Catalogue',
+      feature: 'Items API',
+      story: 'Listing items',
+      issue: 'SHOP-201',
+    });
+
     const items = await api.listItems();
 
     expect(items.length).toBeGreaterThanOrEqual(5);

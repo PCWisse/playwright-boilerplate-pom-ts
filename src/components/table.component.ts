@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { test, type Locator, type Page } from '@playwright/test';
 
 import { BaseComponent } from './base.component';
 
@@ -62,14 +62,16 @@ export class TableComponent extends BaseComponent {
     return (await cell.innerText()).trim();
   }
 
-  async columnValues(columnName: string): Promise<string[]> {
-    const index = await this.columnIndex(columnName);
-    const rowCount = await this.rowCount();
-    const values: string[] = [];
-    for (let row = 0; row < rowCount; row += 1) {
-      const text = await this.rows().nth(row).getByRole('cell').nth(index).innerText();
-      values.push(text.trim());
-    }
-    return values;
+  columnValues(columnName: string): Promise<string[]> {
+    return test.step(`Read column "${columnName}"`, async () => {
+      const index = await this.columnIndex(columnName);
+      const rowCount = await this.rowCount();
+      const values: string[] = [];
+      for (let row = 0; row < rowCount; row += 1) {
+        const text = await this.rows().nth(row).getByRole('cell').nth(index).innerText();
+        values.push(text.trim());
+      }
+      return values;
+    });
   }
 }

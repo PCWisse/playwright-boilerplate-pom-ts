@@ -1,9 +1,27 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import allureCategories from './allure-categories.json';
 import { env } from './src/utils/env';
 import { STORAGE_STATE } from './src/utils/paths';
 
 const isCI = Boolean(process.env.CI);
+
+// The Allure reporter's `categories` option takes the parsed array, not a path:
+// whatever is passed is serialised straight into `allure-results/categories.json`,
+// so a filename string would silently produce an unusable report. Keeping the
+// definitions in `allure-categories.json` and importing them here means the file
+// stays editable on its own while the reporter still gets an array.
+const allureOptions = {
+  resultsDir: 'allure-results',
+  detail: false,
+  categories: allureCategories,
+  environmentInfo: {
+    base_url: env.baseURL,
+    api_url: env.apiURL,
+    node: process.version,
+    ci: String(isCI),
+  },
+};
 
 export default defineConfig({
   testDir: './tests',
@@ -18,12 +36,8 @@ export default defineConfig({
     toHaveScreenshot: { maxDiffPixelRatio: 0.01 },
   },
   reporter: isCI
-    ? [['github'], ['blob'], ['allure-playwright', { resultsDir: 'allure-results', detail: false }]]
-    : [
-        ['list'],
-        ['html', { open: 'never' }],
-        ['allure-playwright', { resultsDir: 'allure-results', detail: false }],
-      ],
+    ? [['github'], ['blob'], ['allure-playwright', allureOptions]]
+    : [['list'], ['html', { open: 'never' }], ['allure-playwright', allureOptions]],
   snapshotPathTemplate:
     '{testDir}/__screenshots__/{projectName}/{platform}/{testFilePath}/{arg}{ext}',
   use: {
