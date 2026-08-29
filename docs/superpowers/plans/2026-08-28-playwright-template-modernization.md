@@ -1194,7 +1194,13 @@ if (!parsed.success) {
 
 export const env = {
   baseURL: parsed.data.BASE_URL,
-  apiURL: parsed.data.API_URL,
+  // Playwright's `APIRequestContext` resolves relative request paths against
+  // `baseURL` with `new URL(path, base)`. A base WITHOUT a trailing slash drops
+  // its last path segment instead of treating it as a directory, so an
+  // un-normalised `http://host/api` would turn `items` into `http://host/items`
+  // and 404. Normalise once, here at the source, so every consumer is safe and
+  // request paths stay relative (`'items'`, never `'/items'`).
+  apiURL: parsed.data.API_URL.endsWith('/') ? parsed.data.API_URL : `${parsed.data.API_URL}/`,
   demoPort: parsed.data.DEMO_PORT,
   username: parsed.data.TEST_USERNAME,
   password: parsed.data.TEST_PASSWORD,
@@ -2254,7 +2260,7 @@ export class ApiClient {
     username: string,
     password: string,
   ): Promise<string> {
-    const response = await request.post('/login', { data: { username, password } });
+    const response = await request.post('login', { data: { username, password } });
     const body = await ApiClient.unwrap(response, loginResponseSchema, 'POST /login', 201);
     return body.token;
   }
@@ -2289,27 +2295,27 @@ export class ApiClient {
   }
 
   async listItems(): Promise<Item[]> {
-    const response = await this.request.get('/items', { headers: this.headers });
+    const response = await this.request.get('items', { headers: this.headers });
     return ApiClient.unwrap(response, itemListSchema, 'GET /items', 200);
   }
 
   async getItem(id: string): Promise<Item> {
-    const response = await this.request.get(`/items/${id}`, { headers: this.headers });
+    const response = await this.request.get(`items/${id}`, { headers: this.headers });
     return ApiClient.unwrap(response, itemSchema, `GET /items/${id}`, 200);
   }
 
   async createItem(input: ItemInput): Promise<Item> {
-    const response = await this.request.post('/items', { headers: this.headers, data: input });
+    const response = await this.request.post('items', { headers: this.headers, data: input });
     return ApiClient.unwrap(response, itemSchema, 'POST /items', 201);
   }
 
   async updateItem(id: string, input: ItemInput): Promise<Item> {
-    const response = await this.request.put(`/items/${id}`, { headers: this.headers, data: input });
+    const response = await this.request.put(`items/${id}`, { headers: this.headers, data: input });
     return ApiClient.unwrap(response, itemSchema, `PUT /items/${id}`, 200);
   }
 
   async deleteItem(id: string): Promise<void> {
-    const response = await this.request.delete(`/items/${id}`, { headers: this.headers });
+    const response = await this.request.delete(`items/${id}`, { headers: this.headers });
     if (response.status() !== 204) {
       throw new Error(
         `DELETE /items/${id} expected HTTP 204 but got ${String(response.status())}: ${await response.text()}`,
@@ -2319,7 +2325,7 @@ export class ApiClient {
 
   /** Escape hatch for negative tests that assert on non-2xx responses. */
   async createItemRaw(body: unknown): Promise<APIResponse> {
-    return this.request.post('/items', { headers: this.headers, data: body });
+    return this.request.post('items', { headers: this.headers, data: body });
   }
 }
 ```
@@ -2386,8 +2392,16 @@ export const testDataTest = apiTest.extend<TestDataFixtures>({
     // Teardown runs even when the test fails, so no run leaves data behind.
     try {
       await api.deleteItem(item.id);
-    } catch {
-      // Already deleted by the test itself; nothing to clean up.
+    } catch (error) {
+      // `ApiClient.deleteItem` throws an Error whose message embeds the response
+      // status when it isn't 204. Only tolerate a 404: that means the test
+      // itself already deleted the item, so there is nothing left to clean up.
+      // Anything else (auth failure, network error, 5xx) is a genuine teardown
+      // failure and must surface, not be swallowed.
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes('404')) {
+        throw error;
+      }
     }
   },
 });
