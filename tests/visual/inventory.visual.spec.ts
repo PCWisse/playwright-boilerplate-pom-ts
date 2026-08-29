@@ -15,8 +15,17 @@ test.describe('Inventory visuals', () => {
     await expect(page).toHaveScreenshot('inventory-full-page.png', {
       fullPage: true,
       // The user name comes from storage state and would differ per run in a
-      // real application; masking keeps the baseline stable.
-      mask: [page.getByTestId('current-user')],
+      // real application; masking keeps the baseline stable. Use the nav
+      // component's locator rather than re-deriving the test id here, so a
+      // markup change has one place to update.
+      //
+      // Caveat worth knowing before you copy this: a mask rectangle is the
+      // element's bounding box, and this span is text-sized. The name resolves
+      // from TEST_USERNAME, so changing that env var changes the box width and
+      // invalidates the baseline — and a developer whose .env differs from
+      // CI's will disagree with CI on the same commit. Pin TEST_USERNAME, or
+      // mask a fixed-size container instead.
+      mask: [inventoryPage.nav.currentUser],
       animations: 'disabled',
     });
   });
@@ -35,7 +44,7 @@ test.describe('Inventory visuals', () => {
       await expect(inventoryPage.emptyState).toBeVisible();
 
       await expect(page).toHaveScreenshot('inventory-empty-state.png', {
-        mask: [page.getByTestId('current-user')],
+        mask: [inventoryPage.nav.currentUser],
         animations: 'disabled',
       });
     },

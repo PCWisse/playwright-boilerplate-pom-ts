@@ -10,7 +10,10 @@ import type { Item } from '../api/schemas';
  * created in the shared demo store.
  */
 export async function mockItems(page: Page, items: readonly Item[]): Promise<void> {
-  await page.route('**/api/items', async (route) => {
+  // The trailing `*` also matches a query string (`/api/items?page=1`) but not
+  // a sub-path (`/api/items/123`), so adding pagination or a cache-buster to
+  // the request cannot silently stop the mock from firing.
+  await page.route('**/api/items*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
