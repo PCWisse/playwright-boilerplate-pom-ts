@@ -9,7 +9,8 @@ export interface A11yCheckOptions {
   exclude?: string[];
   /** Axe rule ids to switch off. Always leave a comment saying why. */
   disableRules?: string[];
-  /** Axe tags. Defaults to WCAG 2.1 A and AA. */
+  /** Axe tags. Defaults to WCAG 2.1 A and AA. An empty array falls back to the
+   * default rather than running zero rules. */
   tags?: string[];
 }
 
@@ -27,7 +28,13 @@ const DEFAULT_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 export const a11yTest = base.extend<A11yFixtures>({
   checkA11y: async ({ page }, use, testInfo) => {
     await use(async (options: A11yCheckOptions = {}): Promise<A11yResult> => {
-      let builder = new AxeBuilder({ page }).withTags(options.tags ?? DEFAULT_TAGS);
+      // An empty `tags` array would make axe run NO rules and return no
+      // violations — a silent pass that looks identical to a clean page.
+      // Treat it as "unset" so the scan can never become vacuous.
+      const tags =
+        options.tags !== undefined && options.tags.length > 0 ? options.tags : DEFAULT_TAGS;
+
+      let builder = new AxeBuilder({ page }).withTags(tags);
 
       if (options.include !== undefined) {
         builder = builder.include(options.include);

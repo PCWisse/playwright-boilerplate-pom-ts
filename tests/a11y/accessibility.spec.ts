@@ -15,8 +15,10 @@ test.describe('Accessibility', () => {
       await loginPage.login(STANDARD_USER.username, STANDARD_USER.password);
       await expect(inventoryPage.heading).toBeVisible();
       // Gate the scan on the item fetch having rendered, so axe never sees a
-      // half-built table.
-      await expect(inventoryPage.emptyState).toBeHidden();
+      // half-built table. Assert on the rows themselves: `emptyState` carries a
+      // static `hidden` attribute in the markup, so `toBeHidden()` is already
+      // satisfied at parse time and would wait for nothing.
+      await expect(inventoryPage.table.rows()).not.toHaveCount(0);
 
       const { violationIds } = await checkA11y();
 
@@ -71,13 +73,19 @@ test.describe('Accessibility', () => {
 
       const { violationIds } = await checkA11y({
         // Real-world pattern: exclude markup you do not control, and disable a
-        // rule only with a written reason. Here the low-contrast paragraph is
-        // treated as a known, accepted design decision.
+        // rule only with a written reason.
+        //
+        // `exclude` drops a subtree — use it for a third-party widget or an
+        // embed you cannot change. `disableRules` switches a rule off
+        // everywhere; here the low-contrast paragraph is treated as a known,
+        // accepted design decision.
+        exclude: ['img'],
         disableRules: ['color-contrast'],
       });
 
-      expect(violationIds).not.toContain('color-contrast');
-      expect(violationIds).toContain('image-alt');
+      // Exactly one violation survives, which proves BOTH narrowing paths
+      // actually took effect rather than silently doing nothing.
+      expect(violationIds).toEqual(['link-name']);
     },
   );
 });
