@@ -14,6 +14,15 @@ export class TableComponent extends BaseComponent {
     this.table = root.getByRole('table');
   }
 
+  /**
+   * The table element itself. Exposed so specs can scope a screenshot (or any
+   * other whole-component assertion) to the table without re-deriving the
+   * locator the component already owns.
+   */
+  get element(): Locator {
+    return this.table;
+  }
+
   rows(): Locator {
     return this.table.getByRole('row').filter({ has: this.page.getByRole('cell') });
   }
