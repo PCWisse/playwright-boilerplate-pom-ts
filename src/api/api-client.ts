@@ -1,6 +1,7 @@
 import { test, type APIRequestContext, type APIResponse } from '@playwright/test';
 import type { ZodType } from 'zod';
 
+import { sanitiseBody } from '../utils/reporting';
 import {
   itemListSchema,
   itemSchema,
@@ -67,7 +68,9 @@ export class ApiClient {
     // error messages below.
     try {
       await test.info().attach(`${context} response`, {
-        body: raw === '' ? '(empty body)' : raw,
+        // Never attach a raw body: this one carries an auth token, and
+        // attachments reach the blob report that CI publishes as an artifact.
+        body: sanitiseBody(raw),
         contentType: 'application/json',
       });
     } catch {

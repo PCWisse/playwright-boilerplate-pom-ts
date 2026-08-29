@@ -48,3 +48,54 @@ export async function annotate(options: Annotation): Promise<void> {
     await allure.issue(`${env.ticketBaseUrl}${options.issue}`, options.issue);
   }
 }
+
+/** Keys whose values must never reach a report artifact. */
+const SECRET_KEY = /^(token|password|secret|authorization|cookie|api_?key|refresh_?token)$/i;
+
+const REDACTED = '«redacted»';
+
+/** Largest attachment body kept, in characters. */
+const MAX_BODY_CHARS = 8_192;
+
+function redact(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(redact);
+  }
+  if (typeof value === 'object' && value !== null) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [
+        key,
+        SECRET_KEY.test(key) ? REDACTED : redact(nested),
+      ]),
+    );
+  }
+  return value;
+}
+
+/**
+ * Prepares a response body for attachment to a test result.
+ *
+ * Attachments are not private. `testInfo.attach` feeds every reporter at once —
+ * the built-in HTML report, the `blob` report that CI uploads as an artifact,
+ * and Allure. So a raw body containing a bearer token would be published to
+ * anyone who can read the pipeline's artifacts. Redact secret-looking keys
+ * before that happens, and cap the size so a large listing endpoint cannot
+ * inflate the report on every request, every retry, in every project.
+ */
+export function sanitiseBody(raw: string): string {
+  if (raw === '') {
+    return '(empty body)';
+  }
+
+  let text = raw;
+  try {
+    text = JSON.stringify(redact(JSON.parse(raw)), null, 2);
+  } catch {
+    // Not JSON — attach it verbatim, still capped. Redaction is key-based and
+    // cannot be applied safely to an unknown format.
+  }
+
+  return text.length > MAX_BODY_CHARS
+    ? `${text.slice(0, MAX_BODY_CHARS)}\n… truncated, ${String(text.length - MAX_BODY_CHARS)} more characters`
+    : text;
+}
