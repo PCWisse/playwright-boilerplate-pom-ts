@@ -2925,7 +2925,10 @@ export async function annotate(options: Annotation): Promise<void> {
     await allure.owner(options.owner);
   }
   if (options.issue !== undefined) {
-    await allure.issue(options.issue, `${env.ticketBaseUrl}${options.issue}`);
+    // `allure.issue` takes (url, name) — in that order. Passing the ticket key
+    // first produces a link whose href is the bare key and whose label is the
+    // URL, which renders as a dead link in the report.
+    await allure.issue(`${env.ticketBaseUrl}${options.issue}`, options.issue);
   }
 }
 ```
@@ -2978,7 +2981,11 @@ Replace **both** `['allure-playwright', { resultsDir: 'allure-results', detail: 
         {
           resultsDir: 'allure-results',
           detail: false,
-          categories: './allure-categories.json',
+          // `categories` is typed `Category[]` and is written straight to
+          // allure-results/categories.json — a path string is never read from
+          // disk, and would throw when the runtime calls `.map` on it. Import
+          // the JSON (resolveJsonModule is on) and pass the array.
+          categories: allureCategories,
           environmentInfo: {
             base_url: env.baseURL,
             api_url: env.apiURL,
