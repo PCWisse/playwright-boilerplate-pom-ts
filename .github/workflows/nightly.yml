@@ -16,12 +16,13 @@ concurrency:
 jobs:
   test:
     name: Nightly (shard ${{ matrix.shard }}/4)
-    # Pinned for the same reason as the PR workflow: this run includes the
-    # visual project, and the committed Linux baselines were generated inside
-    # mcr.microsoft.com/playwright:v1.62.1-noble (Ubuntu 24.04). Letting this
-    # float on ubuntu-latest would fail every visual test the day GitHub
-    # rolls the image forward, with no change on our side.
     runs-on: ubuntu-24.04
+    # Same image as the PR workflow, for the same reason: this run includes the
+    # visual project, and the committed Linux baselines were rendered with this
+    # image's fonts. See the comment in playwright.yml.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -35,8 +36,8 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # Unlike the PR workflow, the nightly run covers every browser.
-      - run: npx playwright install --with-deps
+      # The image ships every browser for this Playwright version, so nothing
+      # needs installing. Unlike the PR workflow, the nightly run uses them all.
 
       - name: Run the full suite
         run: npx playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }}

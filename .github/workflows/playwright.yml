@@ -35,13 +35,21 @@ jobs:
 
   test:
     name: Test (shard ${{ matrix.shard }})
-    # Pinned, NOT ubuntu-latest. The committed Linux screenshot baselines in
-    # tests/visual/__screenshots__/visual/linux/ were generated inside
-    # mcr.microsoft.com/playwright:v1.62.1-noble, which is Ubuntu 24.04. When
-    # ubuntu-latest rolls forward the font stack shifts and every visual test
-    # fails with no code change. Bump this together with the image tag used in
-    # `npm run test:update-snapshots` and regenerate the baselines.
     runs-on: ubuntu-24.04
+    # Run INSIDE the same image the committed Linux baselines were generated
+    # in. The runner OS version is not enough: screenshots depend on the font
+    # set, and this image's differs from the GitHub-hosted runner's even at the
+    # same Ubuntu version. demo-app's CSS asks for generic families only, so
+    # whichever face fontconfig resolves is what gets rendered — and comparing
+    # a report rendered with the runner's fonts against a baseline rendered
+    # with the image's fonts produces diffs no code change can explain.
+    #
+    # Keep this tag, `runs-on`, and the tag in `docs/ci.md` in step, and
+    # regenerate the baselines whenever you bump @playwright/test.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      # Chromium's default /dev/shm is too small in a container and crashes it.
+      options: --ipc=host
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -57,31 +65,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Resolve Playwright version
-        id: pw
-        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache browsers
-        id: browser-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          # The key names chromium because this workflow only ever installs
-          # chromium; the nightly workflow installs every browser and must not
-          # be able to restore (or poison) this partial cache.
-          key: playwright-chromium-${{ runner.os }}-${{ steps.pw.outputs.version }}
-
-      # PR runs install only Chromium. The nightly workflow installs all
-      # browsers. This is the "optimize browser downloads on CI" guidance.
-      - name: Install Chromium
-        if: steps.browser-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium --with-deps
-
-      # A cache hit restores the browser binaries but not the apt packages they
-      # link against, so the system dependencies still have to be installed.
-      - name: Install system deps for cached browsers
-        if: steps.browser-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+      # No browser install or cache step: the image already ships the browsers
+      # for exactly this Playwright version, which is the point of using it.
 
       - name: Run tests
         run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
@@ -174,6 +159,12 @@ jobs:
           cp -r playwright-report/. site/
           cp -r allure-report/. site/allure/
 
+      # WARNING: on a public repository this site is world-readable, and a
+      # Playwright report embeds traces, videos and screenshots from failed
+      # runs. Traces carry request/response bodies and the storageState used to
+      # authenticate, neither of which is redacted. Publish from a private repo,
+      # or drop the trace/video artifacts before publishing, if your tests touch
+      # anything real. See docs/ci.md.
       - name: Publish to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
@@ -182,7 +173,10 @@ jobs:
           publish_dir: ./site
           keep_files: false
 
+      # Not gated on the Allure step succeeding: if `allure generate` fails the
+      # Playwright report is still worth having, and losing both is worse.
       - name: Upload the merged report as an artifact
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: merged-reports
