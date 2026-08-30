@@ -1,27 +1,190 @@
 name: Playwright Tests
+
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
+
+# Least privilege by default; the publish job adds only what it needs.
+permissions:
+  contents: read
+
+# A new push to the same branch cancels the previous run, except on main:
+# cancelling there could kill a GitHub Pages publish half-way through. On main
+# the runs queue instead, which also serialises the gh-pages force-push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
-  test:
-    timeout-minutes: 60
+  static-analysis:
+    name: Lint and typecheck
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: lts/*
-      - name: Install dependencies
-        run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        run: npx playwright test
-      - uses: actions/upload-artifact@v4
-        if: always()
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+
+  test:
+    name: Test (shard ${{ matrix.shard }})
+    # Pinned, NOT ubuntu-latest. The committed Linux screenshot baselines in
+    # tests/visual/__screenshots__/visual/linux/ were generated inside
+    # mcr.microsoft.com/playwright:v1.62.1-noble, which is Ubuntu 24.04. When
+    # ubuntu-latest rolls forward the font stack shifts and every visual test
+    # fails with no code change. Bump this together with the image tag used in
+    # `npm run test:update-snapshots` and regenerate the baselines.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
         with:
-          name: playwright-report
-          path: playwright-report/
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache browsers
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          # The key names chromium because this workflow only ever installs
+          # chromium; the nightly workflow installs every browser and must not
+          # be able to restore (or poison) this partial cache.
+          key: playwright-chromium-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      # PR runs install only Chromium. The nightly workflow installs all
+      # browsers. This is the "optimize browser downloads on CI" guidance.
+      - name: Install Chromium
+        if: steps.browser-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      # A cache hit restores the browser binaries but not the apt packages they
+      # link against, so the system dependencies still have to be installed.
+      - name: Install system deps for cached browsers
+        if: steps.browser-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run tests
+        run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report/
+          retention-days: 7
+
+      - name: Upload Allure results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ matrix.shard }}
+          path: allure-results/
+          retention-days: 7
+
+  report:
+    name: Merge and publish reports
+    # Runs even when a shard failed: a failing run is exactly when the report
+    # is worth reading. `cancelled()` still short-circuits it.
+    if: ${{ !cancelled() }}
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      # Allure's CLI is a JVM program. Java is provisioned only in this job, so
+      # a JDK problem can never block the shards or the built-in report.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - run: npm ci
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v5
+        with:
+          pattern: blob-report-*
+          path: all-blob-reports
+          merge-multiple: true
+
+      - name: Download Allure results
+        uses: actions/download-artifact@v5
+        with:
+          pattern: allure-results-*
+          path: allure-results
+          merge-multiple: true
+
+      - name: Merge into a single HTML report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      # Checking out gh-pages into a sub-path is what gives Allure its trend and
+      # retry graphs. `continue-on-error` covers the very first run, when the
+      # branch does not exist yet.
+      - name: Check out the published site
+        id: gh-pages
+        continue-on-error: true
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: gh-pages-tmp
+          fetch-depth: 1
+
+      - name: Restore Allure history
+        if: steps.gh-pages.outcome == 'success'
+        run: |
+          if [ -d ./gh-pages-tmp/allure/history ]; then
+            cp -r ./gh-pages-tmp/allure/history allure-results/history
+          fi
+
+      - name: Generate Allure report
+        run: npx allure generate allure-results --clean --output allure-report
+
+      - name: Assemble the published site
+        run: |
+          mkdir -p site/allure
+          cp -r playwright-report/. site/
+          cp -r allure-report/. site/allure/
+
+      - name: Publish to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          keep_files: false
+
+      - name: Upload the merged report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-reports
+          path: site/
           retention-days: 30
