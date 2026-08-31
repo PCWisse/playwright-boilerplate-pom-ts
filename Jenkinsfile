@@ -3,10 +3,13 @@
 // plus an Allure report.
 //
 // Plugin baseline: Docker Pipeline (the `docker` agent), Pipeline: Declarative
-// 1.5+ (the `matrix` directive), HTML Publisher (`publishHTML`) and Allure
-// (`allure`). The Allure step also needs an Allure commandline installation
-// configured under Manage Jenkins > Tools; leaving `jdk: ''` and `commandline`
-// unset picks the default of each.
+// 1.5+ (the `matrix` directive), Pipeline: Job 2.42+ (for
+// `disableConcurrentBuilds(abortPrevious: true)`), HTML Publisher
+// (`publishHTML`) and Allure (`allure`). The Allure step also needs an Allure
+// commandline installation configured under Manage Jenkins > Tools; leaving
+// `jdk: ''` and `commandline` unset picks the default of each. Without that
+// tool the Allure step fails, so it is wrapped to mark the build UNSTABLE
+// rather than FAILURE — see the Publish reports stage.
 //
 // The browser work runs INSIDE the same image the committed Linux screenshot
 // baselines were generated in. Screenshots depend on the font set, not just the
@@ -75,10 +78,13 @@ pipeline {
         stages {
           stage('Run shard') {
             steps {
-              sh 'npm ci'
-              // The report is worth having even when a shard fails, so mark
-              // the build unstable and let the reporting stages run.
+              // `npm ci` is inside the catchError too, not just the test run.
+              // A cell that dies installing dependencies — a registry blip, a
+              // proxy — would otherwise fail the whole Test stage, and
+              // declarative would then skip both reporting stages and throw
+              // away the three shards that finished perfectly well.
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                sh 'npm ci'
                 sh 'npm run test:ci -- --shard=$SHARD_INDEX/$SHARD_TOTAL'
               }
             }
@@ -151,7 +157,17 @@ pipeline {
         ])
         // The Allure plugin runs `allure generate` itself and keeps history
         // across builds, which is what produces the trend and retry graphs.
-        allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+        //
+        // `jdk: ''` resolves the DEFAULT Allure commandline installation. On a
+        // fresh controller the plugin can be installed with no tool configured
+        // under Manage Jenkins -> Tools, and this step then errors — turning a
+        // build red after every shard passed and a perfectly good Playwright
+        // report was already published. Degrade to UNSTABLE instead, so the
+        // missing tool is visible without discrediting the test results.
+        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE',
+                   message: 'Allure reporting failed. Configure an Allure commandline tool under Manage Jenkins -> Tools.') {
+          allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+        }
       }
     }
   }
