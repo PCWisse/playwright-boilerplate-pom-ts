@@ -26,4 +26,11 @@ services:
       # this volume from the image layer, so the container keeps its own
       # Linux-built modules. `docker compose run --rm` discards it afterwards.
       - /work/node_modules
+    # Playwright defaults to roughly half the host's CPU count in workers, and
+    # each worker is a browser. On a memory-capped Docker VM (Docker Desktop on
+    # Windows/macOS defaults to a fraction of host RAM; a `~/.wslconfig`
+    # `memory=` line caps it further) that can exhaust the VM and take the
+    # engine down with it. If runs die or hang, cap it:
+    #   docker compose -f docker/docker-compose.yml run --rm tests \
+    #     npx playwright test --workers=2
     command: npm test
