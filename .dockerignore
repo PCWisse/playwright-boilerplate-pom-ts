@@ -1,0 +1,36 @@
+# Host node_modules must never reach the image: the Dockerfile runs `npm ci`
+# before `COPY . .`, so copying host modules would overwrite the Linux-built
+# ones with whatever your machine produced (Windows/macOS binaries) and break
+# every run.
+node_modules
+
+# Never bake secrets into an image layer. `.env.example` is kept on purpose.
+.env
+.env.*
+!.env.example
+
+# Test and report output — regenerated inside the container anyway.
+test-results/
+playwright-report/
+blob-report/
+allure-results/
+allure-report/
+allure-temp/
+playwright/.auth/
+playwright/.cache/
+
+# Not needed to run tests.
+.git
+.gitignore
+.github
+.devcontainer
+docs
+*.log
+
+# Editor/OS noise.
+.idea
+.vscode
+.DS_Store
+
+# Local planning/scratch directory (git-ignored).
+.superpowers

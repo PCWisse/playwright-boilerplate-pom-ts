@@ -1,0 +1,21 @@
+{
+  "name": "Playwright Template",
+  "image": "mcr.microsoft.com/playwright:v1.62.1-noble",
+  "runArgs": ["--ipc=host"],
+  "postCreateCommand": "npm ci",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-playwright.playwright",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "playwright.reuseBrowser": true
+      }
+    }
+  },
+  "forwardPorts": [4173]
+}
