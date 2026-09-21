@@ -140,6 +140,13 @@ not redacted — see [CI and reporting](ci.md).
 ## Commit messages
 
 Conventional Commits, enforced by commitlint through a husky `commit-msg` hook.
-The scope allowlist lives in `commitlint.config.mjs`. `npm test` and
-`npm run typecheck` are **not** run by the hooks; `.husky/pre-commit` runs
-lint-staged plus `tsc --noEmit`.
+The scope allowlist lives in `commitlint.config.mjs`.
+
+`.husky/pre-commit` runs lint-staged (ESLint `--fix` and Prettier over the
+staged files) and then `npm run typecheck` over the whole project. `npm test` is
+**not** run by the hooks — the suite is a CI gate, not a commit gate.
+
+One trade-off worth knowing: `tsc --noEmit` checks the working tree, not the
+staged snapshot. So you can stage a type error, fix it without staging the fix,
+and commit successfully — leaving a `HEAD` that does not compile. The hook
+comment says as much.

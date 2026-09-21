@@ -212,17 +212,23 @@ Two things are not automatic on a fresh repository:
    step's outcome, so the first run simply has no history and the second onwards
    do.
 
-## Lint and format are host-or-CI gates, not container gates
+## `format:check` is a host-or-CI gate, not a container gate
 
 `.dockerignore` excludes `.github` and `docs`, so those tracked files are
-**absent from the built image**. `npm run format:check` and `npm run lint`
-inside the container therefore pass vacuously on them: the files prettier would
-complain about are not there to check.
+**absent from the built image**. `npm run format:check` inside the container
+therefore passes vacuously on them: the workflow YAML and the markdown prettier
+would otherwise check are simply not there.
 
 This is a deliberate trade — re-including them would bust the `COPY . .` layer
 on every documentation edit — and it is documented in `.dockerignore` itself.
-Treat the container as a place to run **tests**. Run lint and format on the host
-or in CI, where the whole tree is present.
+Treat the container as a place to run **tests**, and run `format:check` on the
+host or in CI, where the whole tree is present.
+
+`npm run lint` is unaffected, for a duller reason: ESLint never looked at those
+files anywhere. `eslint.config.mjs` matches `.ts`, `.js`, `.cjs` and `.mjs`, and
+there are no such files under `.github` or `docs` — on the host or in the image.
+Their lint coverage is zero either way, so nothing is lost in the container that
+you had outside it.
 
 `.devcontainer` and `docker compose run` use bind mounts, and `.dockerignore`
 governs the build context only, so the full tree **is** visible there. The
