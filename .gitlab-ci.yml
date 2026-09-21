@@ -15,6 +15,16 @@
 # regenerate the baselines whenever you bump it. See docs/ci.md.
 image: mcr.microsoft.com/playwright:v1.62.1-noble
 
+# Without this, GitLab runs the whole four-shard pipeline on every push to
+# every branch — the other three platforms all gate on main plus merge
+# requests, and an ungated pipeline is real money from day one. Adjust the
+# branch name if your default is not `main`.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'web'
+
 stages:
   - static
   - test

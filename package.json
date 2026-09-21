@@ -19,6 +19,7 @@
     "test:a11y": "playwright test --project=a11y",
     "test:visual": "playwright test --project=visual",
     "test:update-snapshots": "playwright test --project=visual --update-snapshots",
+    "test:update-snapshots:all": "playwright test --project=visual --update-snapshots=all",
     "codegen": "playwright codegen",
     "report": "playwright show-report",
     "report:allure": "allure generate allure-results --clean --output allure-report && allure open allure-report",

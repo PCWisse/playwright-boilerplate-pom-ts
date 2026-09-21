@@ -1,23 +1,24 @@
-.idea
-node_modules
-playwright-report
-allure-temp
-allure-report
-test-results
-test_results/*
-.vscode
-results.json
-/.run/
-temp/
-playwright/.auth
-playwright/.cache/
-!.vscode/launch.json
-.DS_Store
-__pycache__
+# Dependencies
+node_modules/
 
+# Test and report output
+test-results/
+playwright-report/
+blob-report/
+allure-results/
+allure-report/
+playwright/.cache/
+
+# Auth state produced by src/setup/auth.setup.ts
+playwright/.auth/
+
+# Environment files. .env.example IS committed; real values never are.
+.env
+.env.*
+!.env.example
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -28,56 +29,17 @@ lerna-debug.log*
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# TypeScript cache
+# Tool caches
 *.tsbuildinfo
-
-# Optional npm cache directory
 .npm
-
-# Optional eslint cache
 .eslintcache
-
-# Optional stylelint cache
 .stylelintcache
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+# Editors and OS
+.idea/
+.vscode/
+!.vscode/launch.json
+.DS_Store
 
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-tes
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+# Local planning/scratch directory used while building this template.
 .superpowers/
-
-# Reporting output
-allure-results/
-allure-report/
-blob-report/
-playwright-report/
-test-results/
-
-# Auth state produced by src/setup/auth.setup.ts
-playwright/.auth/

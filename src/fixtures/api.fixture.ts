@@ -21,7 +21,12 @@ export interface ApiTestFixtures {
 export const apiTest = base.extend<ApiTestFixtures, ApiWorkerFixtures>({
   // Worker-scoped: log in once per worker instead of once per test.
   authToken: [
-    // eslint-disable-next-line no-empty-pattern -- Playwright fixture signature requires the destructured first argument even when unused.
+    // Playwright inspects this function's source and REQUIRES the first
+    // argument to be an object destructuring pattern, even when the fixture
+    // needs nothing from it — `async (_fixtures, use)` fails at runtime with
+    // "First argument must use the object destructuring pattern". So the empty
+    // pattern is mandatory here and the lint rule has to yield, not the code.
+    // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
       const context = await playwrightRequest.newContext({ baseURL: env.apiURL });
       const token = await ApiClient.login(context, STANDARD_USER.username, STANDARD_USER.password);
