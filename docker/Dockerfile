@@ -20,6 +20,15 @@ RUN apt-get update \
 WORKDIR /work
 
 # Copy the manifests first so `npm ci` is cached independently of source edits.
+#
+# `npm ci` triggers the `prepare` script, which runs `husky`. `.dockerignore`
+# excludes `.git`, so husky has no repository to install hooks into. This build
+# depends on husky >= 9.1 printing `.git can't be found` and exiting 0 — 9.0.x
+# exited 1 and would break the build here. package.json therefore pins
+# `husky: ^9.1.7`; do not relax it. If husky ever regresses, the fix is
+# `RUN HUSKY=0 npm ci` on this line only — never an `ENV HUSKY=0`, which would
+# persist into the running container where `docker compose run` DOES bind-mount
+# `.git`, silently leaving a developer with no hooks after `npm ci`.
 COPY package.json package-lock.json ./
 RUN npm ci
 

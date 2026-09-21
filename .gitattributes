@@ -1,0 +1,4 @@
+# Git hooks are run by `sh`. Git for Windows checks files out as CRLF when
+# core.autocrlf=true (its installer default), and a trailing carriage return on
+# each line makes the hook die with `command not found`. Pin the hooks to LF.
+.husky/** text eol=lf
