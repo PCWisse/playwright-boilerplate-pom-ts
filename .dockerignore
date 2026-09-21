@@ -20,12 +20,21 @@ playwright/.auth/
 playwright/.cache/
 
 # Not needed to run tests.
+#
+# NOTE: excluding `.github` and `docs` means `npm run format:check` and
+# `npm run lint` inside the container do NOT see the workflow YAML or the
+# markdown under docs/, and so pass vacuously on them. Treat lint and format as
+# HOST or CI gates, not container gates. Re-including them would rebuild the
+# `COPY . .` layer on every documentation edit, which is the worse trade.
 .git
 .gitignore
 .github
 .devcontainer
 docs
 *.log
+
+# Git hooks: the image has no .git, so they can never run there.
+.husky
 
 # Editor/OS noise.
 .idea

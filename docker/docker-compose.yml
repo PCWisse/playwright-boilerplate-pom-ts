@@ -33,4 +33,6 @@ services:
     # engine down with it. If runs die or hang, cap it:
     #   docker compose -f docker/docker-compose.yml run --rm tests \
     #     npx playwright test --workers=2
-    command: npm test
+    # Capped by default rather than documented-only: the uncapped path is the
+    # one that actually takes the engine down, so it should not be the default.
+    command: npm test -- --workers=2
