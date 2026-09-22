@@ -67,7 +67,7 @@ There are two shapes in the tree, and they are not interchangeable:
 // Root passed in by the caller, reusable wherever the markup appears.
 this.table = new TableComponent(page, page.getByRole('main'));
 
-// Root owned by the component, which has exactly one main nav.
+// Root owned by the component: there is exactly one main nav.
 this.nav = new NavComponent(page);
 ```
 

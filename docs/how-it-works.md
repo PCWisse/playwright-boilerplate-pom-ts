@@ -116,7 +116,7 @@ Everything is a **devDependency** in the package json. This project ships no run
 | Package                                  | Why                                                 |
 | ---------------------------------------- | --------------------------------------------------- |
 | `allure-playwright`, `allure-js-commons` | Richer reporting: severities, ticket links, history |
-| `allure-commandline`                     | Renders the Allure HTML, **needs a JVM**            |
+| `allure-commandline`                     | Renders the Allure HTML (**needs a JVM**)           |
 
 ### Repository hygiene
 
