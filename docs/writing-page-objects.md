@@ -2,8 +2,7 @@
 
 ## The shape
 
-A page object exposes **locators as properties** and **intentions as methods**.
-It never asserts. This is `src/pages/login.page.ts` in full:
+A page object exposes **locators as properties** and **intentions as methods**. It never asserts. This is `src/pages/login.page.ts` in full:
 
 ```typescript
 import { test, type Locator, type Page } from '@playwright/test';
@@ -36,13 +35,11 @@ export class LoginPage extends BasePage {
 }
 ```
 
-Locators are created in the constructor and are lazy: nothing touches the page
-until an action or assertion runs, so constructing a page object is free.
+Locators are created in the constructor and are lazy: nothing touches the page until an action or assertion runs, so constructing a page object is free.
 
 ## BasePage
 
-`src/pages/base.page.ts` gives every page `goto()` (navigates to `path`,
-relative to `baseURL`, then calls `waitUntilLoaded()`) and `waitUntilLoaded()`.
+`src/pages/base.page.ts` gives every page `goto()` (navigates to `path`, relative to `baseURL`, then calls `waitUntilLoaded()`) and `waitUntilLoaded()`.
 
 The readiness hook is opt-in. `BasePage` declares:
 
@@ -56,17 +53,13 @@ get loadingIndicator(): Locator | null {
 }
 ```
 
-Set `loadingIndicatorTestId` in a subclass and every `goto()` waits for that
-element to become hidden. Leave it `null` (as all four shipped pages do, since
-the demo app has no spinner) and `waitUntilLoaded()` is a no-op. For anything
-more complex, override `waitUntilLoaded()` outright.
+Set `loadingIndicatorTestId` in a subclass and every `goto()` waits for that element to become hidden. Leave it `null` (as all four shipped pages do, since the demo app has no spinner) and
+`waitUntilLoaded()` is a no-op. For anything more complex, override `waitUntilLoaded()` outright.
 
 ## Components vs pages
 
-A **component** is UI that appears in more than one place. `BaseComponent`
-(`src/components/base.component.ts`) takes a `page` and a **root locator** and
-scopes everything to it, so its locators can never accidentally match an element
-elsewhere on the page.
+A **component** is UI that appears in more than one place. `BaseComponent` (`src/components/base.component.ts`) takes a `page` and a **root locator** and scopes everything to it, so its locators can
+never accidentally match an element elsewhere on the page.
 
 There are two shapes in the tree, and they are not interchangeable:
 
@@ -78,27 +71,19 @@ this.table = new TableComponent(page, page.getByRole('main'));
 this.nav = new NavComponent(page);
 ```
 
-`NavComponent` fixes its own root (`page.getByRole('navigation', { name: 'Main' })`)
-and its constructor takes only `page`. Use that shape when the element is a
-singleton; use the injected-root shape when it is not.
+`NavComponent` fixes its own root (`page.getByRole('navigation', { name: 'Main' })`) and its constructor takes only `page`. Use that shape when the element is a singleton; use the injected-root shape
+when it is not.
 
-`TableComponent` is the model for a reusable component: it is built entirely on
-role locators (`table`, `columnheader`, `row`, `cell`), so it works with any
-semantic table regardless of styling or class names. It exposes `root` (what was
-passed in) and `element` (the `<table>` inside it). Use `element` when you need
-to scope a screenshot or a whole-component assertion to the table itself.
+`TableComponent` is the model for a reusable component: it is built entirely on role locators (`table`, `columnheader`, `row`, `cell`), so it works with any semantic table regardless of styling or
+class names. It exposes `root` (what was passed in) and `element` (the `<table>` inside it). Use `element` when you need to scope a screenshot or a whole-component assertion to the table itself.
 
 ## Wrap multi-action methods in `test.step`
 
-A step gives the report a readable tree and points a failure at the action
-instead of a bare locator. Wrap anything that performs more than one action, such
-as `LoginPage.login`, `FormPage.createItem` and
-`TableComponent.columnValues`, and leave single-action methods like
-`InventoryPage.search` alone.
+A step gives the report a readable tree and points a failure at the action instead of a bare locator. Wrap anything that performs more than one action, such as `LoginPage.login`, `FormPage.createItem`
+and `TableComponent.columnValues`, and leave single-action methods like `InventoryPage.search` alone.
 
-Note that `columnValues` is **not** declared `async`: its body is a single
-`return test.step(...)`, and marking it `async` trips `require-await` under
-`strictTypeChecked`. It still returns a `Promise<string[]>`.
+Note that `columnValues` is **not** declared `async`: its body is a single `return test.step(...)`, and marking it `async` trips `require-await` under `strictTypeChecked`. It still returns a
+`Promise<string[]>`.
 
 ## Adding a new page
 
@@ -110,6 +95,5 @@ Fixtures are lazy: adding one costs nothing to tests that do not name it.
 
 ## Path aliases
 
-`tsconfig.json` defines `@pages/*`, `@components/*`, `@fixtures/*`, `@api/*`,
-`@utils/*` and `@data/*`. The shipped code uses relative imports throughout;
-if you switch to the aliases, switch consistently.
+`tsconfig.json` defines `@pages/*`, `@components/*`, `@fixtures/*`, `@api/*`, `@utils/*` and `@data/*`. The shipped code uses relative imports throughout; if you switch to the aliases, switch
+consistently.

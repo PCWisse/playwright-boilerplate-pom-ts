@@ -1,19 +1,25 @@
 # Playwright Template Modernization Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox
+> (`- [ ]`) syntax for tracking.
 
-**Goal:** Turn this repository into a client-neutral, ready-to-use Playwright template with page objects, composable fixtures, UI/API/a11y/visual examples, dual reporting (built-in + Allure), and CI pipelines for four platforms.
+**Goal:** Turn this repository into a client-neutral, ready-to-use Playwright template with page objects, composable fixtures, UI/API/a11y/visual examples, dual reporting (built-in + Allure), and CI
+pipelines for four platforms.
 
-**Architecture:** A bundled dependency-free demo web app is served by Playwright's `webServer`, so every example test is deterministic and needs no external service. Page objects and components are thin locator+action wrappers over ARIA role locators; assertions live in specs. Fixtures are split by concern (POM, API, a11y, test data) and composed with `mergeTests`, so a consumer imports one `test` object and gets only what they use.
+**Architecture:** A bundled dependency-free demo web app is served by Playwright's `webServer`, so every example test is deterministic and needs no external service. Page objects and components are
+thin locator+action wrappers over ARIA role locators; assertions live in specs. Fixtures are split by concern (POM, API, a11y, test data) and composed with `mergeTests`, so a consumer imports one
+`test` object and gets only what they use.
 
-**Tech Stack:** Playwright 1.62, TypeScript 5.9 (strict), ESLint 10 flat config with type-aware `typescript-eslint` 8 and `eslint-plugin-playwright` 2, Prettier 3, zod 4, faker 10, date-fns 4, `allure-playwright` 3, `@axe-core/playwright` 4, tsx 4, Husky 9 + lint-staged 17 + commitlint 21.
+**Tech Stack:** Playwright 1.62, TypeScript 5.9 (strict), ESLint 10 flat config with type-aware `typescript-eslint` 8 and `eslint-plugin-playwright` 2, Prettier 3, zod 4, faker 10, date-fns 4,
+`allure-playwright` 3, `@axe-core/playwright` 4, tsx 4, Husky 9 + lint-staged 17 + commitlint 21.
 
 ## Global Constraints
 
 - **Node:** `>=20`. Declared in `engines` and used by every CI pipeline.
 - **TypeScript is pinned to `^5.9.3`, NOT 7.x.** `typescript-eslint@8.68.0` declares a peer of `typescript >=4.8.4 <6.1.0`; TypeScript 7 breaks type-aware linting.
 - **Every dependency goes in `devDependencies`.** Nothing in a test project is a runtime dependency. `dependencies` must end up empty.
-- **No client-specific content anywhere.** No `Alphabet`, `alphabet`, `al-ds-`, `.al-label`, `TDS`, `CONFIRM_DELIVERY_LOCATION`, or `Markets` (es/de/fr). Task 1 removes these; the final verification greps for them.
+- **No client-specific content anywhere.** No `Alphabet`, `alphabet`, `al-ds-`, `.al-label`, `TDS`, `CONFIRM_DELIVERY_LOCATION`, or `Markets` (es/de/fr). Task 1 removes these; the final verification
+  greps for them.
 - **Locator priority:** role/label/text first, `getByTestId` second, CSS or XPath only where nothing else works and only with a comment explaining why.
 - **No `waitForTimeout` and no `page.$`/`elementHandle` anywhere.** Both are lint errors after Task 2.
 - **Web-first assertions only.** `await expect(locator).toX()`, never `expect(await locator.isVisible()).toBe(true)`.
@@ -131,7 +137,8 @@ in the following commits."
 
 ### Task 2: Toolchain — package.json, tsconfig, ESLint, Prettier
 
-Establishes strict type-checking and linting before any code exists, so no untyped code is ever written. This is why the previous `parserHelper.parseToKebabCase` could be declared `Promise<void>` while returning a string.
+Establishes strict type-checking and linting before any code exists, so no untyped code is ever written. This is why the previous `parserHelper.parseToKebabCase` could be declared `Promise<void>`
+while returning a string.
 
 **Files:**
 
@@ -140,7 +147,8 @@ Establishes strict type-checking and linting before any code exists, so no untyp
 
 **Interfaces:**
 
-- Produces: the npm scripts every later task and CI pipeline calls — `lint`, `lint:fix`, `format`, `format:check`, `typecheck`, `test`, `test:ci`, `test:smoke`, `test:ui`, `test:debug`, `test:headed`, `test:api`, `test:a11y`, `test:visual`, `test:update-snapshots`, `codegen`, `report`, `report:allure`, `demo`.
+- Produces: the npm scripts every later task and CI pipeline calls — `lint`, `lint:fix`, `format`, `format:check`, `typecheck`, `test`, `test:ci`, `test:smoke`, `test:ui`, `test:debug`, `test:headed`,
+  `test:api`, `test:a11y`, `test:visual`, `test:update-snapshots`, `codegen`, `report`, `report:allure`, `demo`.
 
 - [ ] **Step 1: Replace `package.json`**
 
@@ -1572,10 +1580,12 @@ replacing the CSS-chain-and-sleep approach of the removed toolbox."
 - Produces:
   - `LoginPage`: `usernameInput`, `passwordInput`, `submitButton`, `errorMessage: Locator`; `login(username: string, password: string): Promise<void>`
   - `InventoryPage`: `heading`, `searchInput`, `emptyState: Locator`; `table: TableComponent`; `nav: NavComponent`; `search(term: string): Promise<void>`
-  - `FormPage`: `nameInput`, `priceInput`, `quantityInput`, `submitButton`, `successMessage: Locator`; `nav: NavComponent`; `fieldError(field: 'name' | 'price' | 'quantity'): Locator`; `createItem(input: { name: string; price: string; quantity: string }): Promise<void>`
+  - `FormPage`: `nameInput`, `priceInput`, `quantityInput`, `submitButton`, `successMessage: Locator`; `nav: NavComponent`; `fieldError(field: 'name' | 'price' | 'quantity'): Locator`;
+    `createItem(input: { name: string; price: string; quantity: string }): Promise<void>`
   - `A11yPage`: `heading`, `accessibleRegion: Locator`
   - `pomTest` from `src/fixtures/pom.fixture.ts` with fixtures `loginPage`, `inventoryPage`, `formPage`, `a11yPage`
-  - `src/utils/generator.ts`: `randomItemName(): string`, `randomPrice(): number`, `randomQuantity(): number`, `randomEmail(): string`, `randomIban(): string`, `todayAs(pattern: string): string`, `daysFromNow(days: number, pattern: string): string`
+  - `src/utils/generator.ts`: `randomItemName(): string`, `randomPrice(): number`, `randomQuantity(): number`, `randomEmail(): string`, `randomIban(): string`, `todayAs(pattern: string): string`,
+    `daysFromNow(days: number, pattern: string): string`
   - `src/data/users.ts`: `STANDARD_USER: { username: string; password: string }`, `INVALID_USER: { username: string; password: string }`
   - `src/data/catalogue.ts`: `CATALOGUE: Item[]` — a frozen five-item list matching the demo app's seed
   - `src/utils/mock.ts`: `mockItems(page: Page, items: Item[]): Promise<void>`
@@ -1639,11 +1649,8 @@ export const INVALID_USER: Credentials = {
 
 - [ ] **Step 2b: Create `src/data/catalogue.ts` and `src/utils/mock.ts`**
 
-The demo API's store is shared by every worker, and the form and API examples
-add rows to it. Any spec that asserts on an exact row count must therefore pin
-its own data — otherwise it passes alone and fails in parallel. Mocking at the
-network boundary is also what the Playwright guide recommends for controlling
-test data.
+The demo API's store is shared by every worker, and the form and API examples add rows to it. Any spec that asserts on an exact row count must therefore pin its own data — otherwise it passes alone
+and fails in parallel. Mocking at the network boundary is also what the Playwright guide recommends for controlling test data.
 
 `src/data/catalogue.ts`:
 
@@ -1715,9 +1722,8 @@ export async function mockItems(page: Page, items: readonly Item[]): Promise<voi
 }
 ```
 
-Note: `src/utils/mock.ts` imports `Item` from `src/api/schemas.ts`, which Task 7
-creates. Create a minimal `src/api/schemas.ts` now containing only the
-`itemSchema` and `Item` type from Task 7 Step 1; Task 7 adds the rest.
+Note: `src/utils/mock.ts` imports `Item` from `src/api/schemas.ts`, which Task 7 creates. Create a minimal `src/api/schemas.ts` now containing only the `itemSchema` and `Item` type from Task 7 Step 1;
+Task 7 adds the rest.
 
 - [ ] **Step 3: Create the four page objects**
 
@@ -1996,9 +2002,8 @@ test.describe('Inventory', () => {
 });
 ```
 
-The search term is `Mechanical`, not `Mouse`: `faker.commerce.product()` can
-generate the word "Mouse", so a form or API test running in parallel could add a
-second matching row if the data were not mocked.
+The search term is `Mechanical`, not `Mouse`: `faker.commerce.product()` can generate the word "Mouse", so a form or API test running in parallel could add a second matching row if the data were not
+mocked.
 
 - [ ] **Step 9: Write `tests/ui/form.spec.ts` (demonstrates soft assertions)**
 
@@ -2620,7 +2625,8 @@ test.describe('Accessibility', () => {
 npx playwright test --project=a11y
 ```
 
-Expected: `4 passed`. If the second test fails with a different violation list, update the expected array to match what axe reports for the current axe-core version, and note the change in the commit message — do not weaken the assertion to `toHaveLength(0)`.
+Expected: `4 passed`. If the second test fails with a different violation list, update the expected array to match what axe reports for the current axe-core version, and note the change in the commit
+message — do not weaken the assertion to `toHaveLength(0)`.
 
 - [ ] **Step 5: Verify lint and types, then commit**
 
@@ -2737,7 +2743,8 @@ Baselines are keyed by project and platform via snapshotPathTemplate. Regenerate
 inside the Docker image to match CI; see docs/ci.md."
 ```
 
-Note for the implementer: the committed baselines are generated on **your** platform. `docs/ci.md` (Task 15) tells users to regenerate inside Docker before enabling the visual project in CI. If your platform is not Linux, the `visual` job in Task 11 must be run once with `--update-snapshots` and the Linux baselines committed, or the job will fail on its first run.
+Note for the implementer: the committed baselines are generated on **your** platform. `docs/ci.md` (Task 15) tells users to regenerate inside Docker before enabling the visual project in CI. If your
+platform is not Linux, the `visual` job in Task 11 must be run once with `--update-snapshots` and the Linux baselines committed, or the job will fail on its first run.
 
 ---
 
@@ -3409,7 +3416,8 @@ git push -u origin HEAD
 gh run watch --exit-status
 ```
 
-Expected: all jobs succeed. If the `visual` tests fail on their first CI run, the committed baselines were generated on a non-Linux platform — see the note at the end of Task 9 and regenerate them inside the Docker image from Task 13.
+Expected: all jobs succeed. If the `visual` tests fail on their first CI run, the committed baselines were generated on a non-Linux platform — see the note at the end of Task 9 and regenerate them
+inside the Docker image from Task 13.
 
 ---
 
@@ -3930,10 +3938,8 @@ Expected: the hooks run during this very commit and pass.
 ````markdown
 # Playwright Boilerplate — POM + TypeScript
 
-An opinionated, ready-to-use Playwright template: page objects, composable
-fixtures, UI/API/accessibility/visual examples, dual reporting and CI pipelines
-for four platforms. Clone it, point it at your application, and start writing
-tests.
+An opinionated, ready-to-use Playwright template: page objects, composable fixtures, UI/API/accessibility/visual examples, dual reporting and CI pipelines for four platforms. Clone it, point it at
+your application, and start writing tests.
 
 ## Quick start
 
@@ -3945,8 +3951,7 @@ npm test
 ```
 ````
 
-Everything runs against the bundled demo app in `demo-app/`, so the suite is
-green on a fresh clone with no configuration.
+Everything runs against the bundled demo app in `demo-app/`, so the suite is green on a fresh clone with no configuration.
 
 ## What is in the box
 
@@ -3987,8 +3992,7 @@ green on a fresh clone with no configuration.
 
 ## Requirements
 
-Node 20 or newer. A JDK 17+ is needed only to generate the Allure report
-locally; CI provisions it automatically.
+Node 20 or newer. A JDK 17+ is needed only to generate the Allure report locally; CI provisions it automatically.
 
 ````
 
@@ -4011,8 +4015,7 @@ cp .env.example .env
 npm test
 ```
 
-Playwright starts the bundled demo app automatically via `webServer`, so nothing
-else needs to be running.
+Playwright starts the bundled demo app automatically via `webServer`, so nothing else needs to be running.
 
 ## Watch it happen
 
@@ -4020,8 +4023,7 @@ else needs to be running.
 npm run test:ui
 ```
 
-UI mode gives you a watch mode, a DOM snapshot per action and time-travel
-debugging. It is the fastest way to understand what a failing test did.
+UI mode gives you a watch mode, a DOM snapshot per action and time-travel debugging. It is the fastest way to understand what a failing test did.
 
 ## Debug a single test
 
@@ -4031,15 +4033,13 @@ npx playwright test tests/ui/login.spec.ts:12 --debug
 
 ## Understand a CI failure
 
-Download the `merged-reports` artifact, open `index.html`, and click into the
-trace for the failed test. `trace: 'on-first-retry'` means every CI failure has
-one. You do not need to reproduce the failure locally to inspect it.
+Download the `merged-reports` artifact, open `index.html`, and click into the trace for the failed test. `trace: 'on-first-retry'` means every CI failure has one. You do not need to reproduce the
+failure locally to inspect it.
 
 ## Environment
 
-`src/utils/env.ts` validates the environment with zod at load time, before any
-browser starts. A missing or malformed variable fails immediately with the
-offending field name rather than surfacing as a confusing timeout.
+`src/utils/env.ts` validates the environment with zod at load time, before any browser starts. A missing or malformed variable fails immediately with the offending field name rather than surfacing as
+a confusing timeout.
 
 | Variable                          | Default                           | Purpose                       |
 | --------------------------------- | --------------------------------- | ----------------------------- |
@@ -4087,35 +4087,27 @@ await expect(locator).toBeVisible(); // yes
 expect(await locator.isVisible()).toBe(true); // no — lint error
 ```
 
-Assertions live in specs, not in page objects. A page object that asserts cannot
-be reused by a test that expects the opposite.
+Assertions live in specs, not in page objects. A page object that asserts cannot be reused by a test that expects the opposite.
 
-Use `expect.soft` when several independent checks should all be reported from
-one run — see `tests/ui/form.spec.ts`.
+Use `expect.soft` when several independent checks should all be reported from one run — see `tests/ui/form.spec.ts`.
 
 ## Waiting
 
-Never `waitForTimeout`. It is a lint error in both `src/` and `tests/`. Playwright
-already waits for actionability before every action and retries every web-first
-assertion. For the rare condition that no locator assertion can express, use
-`pollUntil` from `src/utils/wait.ts`.
+Never `waitForTimeout`. It is a lint error in both `src/` and `tests/`. Playwright already waits for actionability before every action and retries every web-first assertion. For the rare condition
+that no locator assertion can express, use `pollUntil` from `src/utils/wait.ts`.
 
 ## Isolation
 
-Every test must pass when run alone, in any order, in parallel. No module-level
-mutable state. Data a test needs is created by that test — use the `seededItem`
-fixture, which also cleans up in teardown.
+Every test must pass when run alone, in any order, in parallel. No module-level mutable state. Data a test needs is created by that test — use the `seededItem` fixture, which also cleans up in
+teardown.
 
 ## Tags
 
-`@smoke` for the critical path, `@regression` for everything else, plus `@api`,
-`@a11y` and `@visual`. Run a subset with `npm run test:smoke` or
-`npx playwright test --grep @api`.
+`@smoke` for the critical path, `@regression` for everything else, plus `@api`, `@a11y` and `@visual`. Run a subset with `npm run test:smoke` or `npx playwright test --grep @api`.
 
 ## Third-party dependencies
 
-Tests must not depend on sites you do not control. Mock at the network boundary
-with `page.route` — see `tests/ui/network-mocking.spec.ts`.
+Tests must not depend on sites you do not control. Mock at the network boundary with `page.route` — see `tests/ui/network-mocking.spec.ts`.
 
 ````
 
@@ -4152,33 +4144,26 @@ export class LoginPage extends BasePage {
 }
 ````
 
-Locators are created in the constructor and are lazy — nothing touches the page
-until an action or assertion runs, so constructing a page object is free.
+Locators are created in the constructor and are lazy — nothing touches the page until an action or assertion runs, so constructing a page object is free.
 
 ## BasePage
 
-`BasePage` gives every page `goto()` (relative to `baseURL`) and
-`waitUntilLoaded()`. If your application shows a global spinner, set
-`loadingIndicatorTestId` in the subclass and every navigation waits for it.
+`BasePage` gives every page `goto()` (relative to `baseURL`) and `waitUntilLoaded()`. If your application shows a global spinner, set `loadingIndicatorTestId` in the subclass and every navigation
+waits for it.
 
 ## Components vs pages
 
-A **component** is UI that appears in more than one place. It takes a root
-locator and scopes everything to it, so the same class works wherever the markup
-appears:
+A **component** is UI that appears in more than one place. It takes a root locator and scopes everything to it, so the same class works wherever the markup appears:
 
 ```typescript
 this.table = new TableComponent(page, page.getByRole('main'));
 ```
 
-Use `TableComponent` as the model: it is built entirely on role locators
-(`table`, `columnheader`, `row`, `cell`), so it works with any semantic table.
+Use `TableComponent` as the model: it is built entirely on role locators (`table`, `columnheader`, `row`, `cell`), so it works with any semantic table.
 
 ## Wrap multi-action methods in `test.step`
 
-A step gives the report a readable tree and points a failure at the action
-instead of a bare locator. Wrap anything that performs more than one action;
-leave single-action methods alone.
+A step gives the report a readable tree and points a failure at the action instead of a bare locator. Wrap anything that performs more than one action; leave single-action methods alone.
 
 ## Adding a new page
 
@@ -4223,41 +4208,32 @@ npx playwright merge-reports --reporter html ./all-blob-reports
 npx allure generate allure-results --clean --output allure-report
 ````
 
-The built-in HTML report is the default and needs no toolchain. Allure adds
-severity, epic/feature/story grouping, ticket links and trend graphs across runs
-— the GitHub workflow restores the previous run's `history/` directory before
-generating, which is what makes the trends accumulate.
+The built-in HTML report is the default and needs no toolchain. Allure adds severity, epic/feature/story grouping, ticket links and trend graphs across runs — the GitHub workflow restores the previous
+run's `history/` directory before generating, which is what makes the trends accumulate.
 
-`allure-commandline` is a JVM program. Java is installed **only in the report
-job**, so a JDK problem can never block the tests or the built-in report.
+`allure-commandline` is a JVM program. Java is installed **only in the report job**, so a JDK problem can never block the tests or the built-in report.
 
 ## Removing Allure
 
 Three edits:
 
 1. Delete the `allure-playwright` reporter entries from `playwright.config.ts`.
-2. Remove `allure-playwright`, `allure-js-commons` and `allure-commandline` from
-   `package.json`, and delete `src/utils/reporting.ts` and
-   `allure-categories.json`.
+2. Remove `allure-playwright`, `allure-js-commons` and `allure-commandline` from `package.json`, and delete `src/utils/reporting.ts` and `allure-categories.json`.
 3. Delete the Allure steps and the Java setup from your pipeline.
 
 ## Visual baselines
 
-Baselines are keyed by project and platform via `snapshotPathTemplate`, so a
-macOS baseline and a Linux baseline can coexist. CI runs on Linux, so generate
-the Linux baselines inside the pinned image:
+Baselines are keyed by project and platform via `snapshotPathTemplate`, so a macOS baseline and a Linux baseline can coexist. CI runs on Linux, so generate the Linux baselines inside the pinned image:
 
 ```bash
 docker compose -f docker/docker-compose.yml run --rm tests npm run test:update-snapshots
 ```
 
-Commit the result. Regenerate whenever you bump the Playwright version — the
-browser changes with it.
+Commit the result. Regenerate whenever you bump the Playwright version — the browser changes with it.
 
 ## Sharding
 
-`SHARD_TOTAL` is 4 everywhere. Raise it if the suite grows; each shard is an
-independent runner, and the merge step handles any count.
+`SHARD_TOTAL` is 4 everywhere. Raise it if the suite grows; each shard is an independent runner, and the merge step handles any count.
 
 ````
 
@@ -4288,14 +4264,12 @@ Credentials belong in your CI secret store, never in a committed file.
 rm -rf demo-app
 ```
 
-Then in `playwright.config.ts`, delete the whole `webServer` block — Playwright
-no longer needs to start anything. Remove the `demo` script from `package.json`
-and `demo-app` from `tsconfig.json`'s `include`.
+Then in `playwright.config.ts`, delete the whole `webServer` block — Playwright no longer needs to start anything. Remove the `demo` script from `package.json` and `demo-app` from `tsconfig.json`'s
+`include`.
 
 ## 3. Replace the examples
 
-Delete the contents of `tests/ui`, `tests/api`, `tests/a11y` and `tests/visual`,
-and the page objects in `src/pages`. Keep:
+Delete the contents of `tests/ui`, `tests/api`, `tests/a11y` and `tests/visual`, and the page objects in `src/pages`. Keep:
 
 - `src/pages/base.page.ts`
 - `src/components/base.component.ts` and `table.component.ts`
@@ -4303,32 +4277,23 @@ and the page objects in `src/pages`. Keep:
 - `src/api/api-client.ts` (adjust the endpoints and schemas)
 - every file in `src/fixtures/`
 
-Work through `src/fixtures/pom.fixture.ts` and remove the fixtures whose page
-objects you deleted; the compiler will point at anything you miss.
+Work through `src/fixtures/pom.fixture.ts` and remove the fixtures whose page objects you deleted; the compiler will point at anything you miss.
 
 ## 4. Adjust the test id attribute
 
-If your application uses something other than `data-testid`, change
-`testIdAttribute` in `playwright.config.ts`. Prefer role and label locators
-regardless — see [conventions](conventions.md).
+If your application uses something other than `data-testid`, change `testIdAttribute` in `playwright.config.ts`. Prefer role and label locators regardless — see [conventions](conventions.md).
 
 ## 5. Rework authentication
 
-`src/setup/auth.setup.ts` signs in through the UI and saves `storageState`.
-Common variations:
+`src/setup/auth.setup.ts` signs in through the UI and saves `storageState`. Common variations:
 
-- **Token-only auth:** call your login endpoint with `request` and write the
-  token into `storageState`'s `origins[].localStorage`.
-- **SSO:** sign in once manually with `npx playwright codegen --save-storage`,
-  and commit nothing — store the state as a CI secret.
-- **Multiple roles:** add one setup file per role, each writing its own storage
-  state file, and give each browser project the matching `storageState`.
+- **Token-only auth:** call your login endpoint with `request` and write the token into `storageState`'s `origins[].localStorage`.
+- **SSO:** sign in once manually with `npx playwright codegen --save-storage`, and commit nothing — store the state as a CI secret.
+- **Multiple roles:** add one setup file per role, each writing its own storage state file, and give each browser project the matching `storageState`.
 
 ## 6. Add a global loading indicator
 
-Most real applications have one. Set `loadingIndicatorTestId` in your page
-objects (or override `waitUntilLoaded` in `BasePage`) so every navigation waits
-for it to disappear.
+Most real applications have one. Set `loadingIndicatorTestId` in your page objects (or override `waitUntilLoaded` in `BasePage`) so every navigation waits for it to disappear.
 
 ## 7. Pick your CI
 
@@ -4344,8 +4309,7 @@ Commit the PNGs. Without this the visual job fails on its first CI run.
 
 ## 9. Update the commit scope allowlist
 
-`commitlint.config.mjs` lists the scopes this template uses. Replace them with
-your project's areas, or delete the `scope-enum` rule.
+`commitlint.config.mjs` lists the scopes this template uses. Replace them with your project's areas, or delete the `scope-enum` rule.
 
 ````
 
@@ -4356,8 +4320,7 @@ npm run lint && npm run typecheck && npm run format:check
 npm test
 ````
 
-Expected: all green. Then confirm the README's command table matches
-`package.json`:
+Expected: all green. Then confirm the README's command table matches `package.json`:
 
 ```bash
 node -e "const s=Object.keys(require('./package.json').scripts); const md=require('node:fs').readFileSync('README.md','utf8'); const missing=s.filter(n=>!md.includes('npm run '+n)&&n!=='test'&&n!=='prepare'); if(missing.length) throw new Error('undocumented scripts: '+missing.join(', ')); console.log('all scripts documented')"
@@ -4392,10 +4355,8 @@ to a new project."
 
 ## Done
 
-At this point the repository is a working template: `npm ci && npm test` is green
-on a fresh clone, four CI pipelines are configured, both reports generate, and
-`docs/adapting-to-a-new-project.md` explains the path from this template to a
-real assignment.
+At this point the repository is a working template: `npm ci && npm test` is green on a fresh clone, four CI pipelines are configured, both reports generate, and `docs/adapting-to-a-new-project.md`
+explains the path from this template to a real assignment.
 
 Consider tagging the result:
 

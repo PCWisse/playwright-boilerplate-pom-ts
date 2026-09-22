@@ -1,9 +1,7 @@
 # Playwright Boilerplate: POM + TypeScript
 
-An opinionated, ready-to-use Playwright template: page objects, composable
-fixtures, UI/API/accessibility/visual examples, dual reporting and CI pipelines
-for four platforms. Clone it, point it at your application, and start writing
-tests.
+An opinionated, ready-to-use Playwright template: page objects, composable fixtures, UI/API/accessibility/visual examples, dual reporting and CI pipelines for four platforms. Clone it, point it at
+your application, and start writing tests.
 
 ## Quick start
 
@@ -15,10 +13,8 @@ cp .env.example .env
 npm test
 ```
 
-Everything runs against the bundled demo app in `demo-app/`, so the suite is
-green on a fresh clone with no configuration. If any of those four commands
-fails, [getting started](docs/getting-started.md) covers the known first-run
-failures.
+Everything runs against the bundled demo app in `demo-app/`, so the suite is green on a fresh clone with no configuration. If any of those four commands fails,
+[getting started](docs/getting-started.md) covers the known first-run failures.
 
 ## What is in the box
 
@@ -45,9 +41,7 @@ ci/                  GitLab, Azure and Jenkins pipelines
 docker/              Dockerfile and compose file
 ```
 
-GitLab needs one setting to find its file outside the root. See
-[docs/ci.md](docs/ci.md). Azure and Jenkins take the path when you create the
-pipeline, so they need nothing extra.
+GitLab needs one setting to find its file outside the root. See [docs/ci.md](docs/ci.md). Azure and Jenkins take the path when you create the pipeline, so they need nothing extra.
 
 ## Commands
 
@@ -85,9 +79,6 @@ pipeline, so they need nothing extra.
 
 ## Requirements
 
-Node `^20.19.0 || ^22.13.0 || >=24`. `.npmrc` sets `engine-strict=true`, so
-`npm ci` refuses to run outside that range rather than failing later in a
-confusing way.
+Node `^20.19.0 || ^22.13.0 || >=24`. `.npmrc` sets `engine-strict=true`, so `npm ci` refuses to run outside that range rather than failing later in a confusing way.
 
-A JDK 17+ is needed only to generate the Allure report locally; the CI report
-jobs provision one themselves.
+A JDK 17+ is needed only to generate the Allure report locally; the CI report jobs provision one themselves.

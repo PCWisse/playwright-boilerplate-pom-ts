@@ -2,6 +2,7 @@
   "singleQuote": true,
   "semi": true,
   "printWidth": 200,
+  "proseWrap": "always",
   "trailingComma": "all",
   "arrowParens": "always",
   "endOfLine": "lf"
