@@ -171,9 +171,13 @@ optional loading-indicator hook.
 
 ### `src/components/` — reusable UI, scoped to a root
 
-A component takes a **root locator** and searches only inside it, so the same
+Every component has a **root locator** and searches only inside it, so the same
 `TableComponent` works on any page with a table and can never accidentally match
 something elsewhere. See `src/components/table.component.ts`.
+
+Most take that root from the caller. A component that can only ever appear in
+one place may fix its own instead — `NavComponent` takes just `page` and roots
+itself on the main navigation landmark.
 
 ### `src/fixtures/` — the interesting part
 
