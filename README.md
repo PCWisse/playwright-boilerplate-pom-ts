@@ -60,6 +60,7 @@ failures.
 
 ## Documentation
 
+- [How it works](docs/how-it-works.md) — start here if you are new to Playwright
 - [Getting started](docs/getting-started.md)
 - [Conventions](docs/conventions.md)
 - [Writing page objects](docs/writing-page-objects.md)
