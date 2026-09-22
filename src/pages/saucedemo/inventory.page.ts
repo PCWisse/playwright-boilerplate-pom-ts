@@ -26,6 +26,7 @@ export class SauceInventoryPage extends BasePage {
     this.title = page.getByText('Products', { exact: true });
     this.cartButton = page.getByRole('button', { name: /^Cart/ });
     this.sortSelect = page.getByRole('combobox', { name: 'Sort products' });
+
     // CSS, deliberately, and worth understanding before you copy it.
     //
     // Each card exposes the SAME accessible name twice: once on the product

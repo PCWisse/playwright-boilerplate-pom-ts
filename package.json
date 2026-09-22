@@ -2,7 +2,7 @@
   "name": "playwright-boilerplate-pom-ts",
   "version": "2.0.0",
   "private": true,
-  "description": "Opinionated Playwright + TypeScript template using the Page Object Model",
+  "description": "Playwright + TypeScript template using the Page Object Model",
   "license": "MIT",
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24"
