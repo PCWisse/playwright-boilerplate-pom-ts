@@ -95,6 +95,15 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
     {
+      // Examples against the public Swag Labs demo site. Deliberately excluded
+      // from `npm run test:ci`: it depends on a third party, and an outage
+      // there must never fail a pull request. Run it with
+      // `npm run test:saucedemo`.
+      name: 'saucedemo',
+      testDir: './tests/external',
+      use: { ...devices['Desktop Chrome'], baseURL: 'https://www.saucedemo.com' },
+    },
+    {
       // Chromium only, so baselines stay stable. Regenerate inside Docker to
       // match the CI platform: see docs/ci.md.
       name: 'visual',

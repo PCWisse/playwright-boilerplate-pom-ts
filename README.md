@@ -54,9 +54,10 @@ GitLab needs one setting to find its file outside the root. See [docs/ci.md](doc
 | `npm run test:ui`               | Playwright UI mode with time-travel debugging         |
 | `npm run test:debug`            | Step through with the Playwright inspector            |
 | `npm run test:headed`           | Run with a visible browser window                     |
-| `npm run test:api`              | Only the`api` project                                 |
+| `npm run test:api`              | Only the `api` project                                |
 | `npm run test:a11y`             | Only the `a11y` project                               |
-| `npm run test:visual`           | Only the`visual` project                              |
+| `npm run test:visual`           | Only the `visual` project                             |
+| `npm run test:saucedemo`        | End-to-end examples against the public saucedemo.com  |
 | `npm run test:update-snapshots` | Refresh changed visual baselines                      |
 | `npm run codegen`               | Record a test and generate locators                   |
 | `npm run report`                | Open the built-in HTML report                         |

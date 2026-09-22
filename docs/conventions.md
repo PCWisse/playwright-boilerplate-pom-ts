@@ -185,6 +185,20 @@ practice. When a version bump changes the expected set, update the assertion to 
 
 Tests must not depend on sites you do not control. Mock at the network boundary with `page.route`. See `tests/ui/network-mocking.spec.ts`.
 
+### The one deliberate exception
+
+`tests/external/saucedemo.spec.ts` drives [saucedemo.com](https://www.saucedemo.com/), Sauce Labs' public practice shop. It exists to demonstrate a full end-to-end purchase against a real site, which
+the bundled demo app cannot show.
+
+It is fenced off so the rule above still holds everywhere it matters:
+
+- Its own `saucedemo` project, with its own `baseURL`.
+- **Not** in `npm run test:ci`, so a pull request can never fail because someone else's site is down.
+- Tagged `@external`, and the nightly workflow runs `--grep-invert @external`.
+- Its own `test` object (`src/fixtures/saucedemo.fixture.ts`), not merged into `src/fixtures/index.ts`, so an internal spec cannot reach a third-party page object by accident.
+
+Run it deliberately: `npm run test:saucedemo`. If you fork this template for a real project, deleting `tests/external/`, `src/pages/saucedemo/` and the `saucedemo` project is a reasonable first move.
+
 ## Never let a secret reach a report
 
 `testInfo.attach` feeds **every** reporter at once: the built-in HTML report, the `blob` report CI uploads as an artifact, and Allure. `src/api/api-client.ts` runs response bodies through

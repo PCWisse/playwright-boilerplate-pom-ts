@@ -39,8 +39,12 @@ jobs:
       # The image ships every browser for this Playwright version, so nothing
       # needs installing. Unlike the PR workflow, the nightly run uses them all.
 
+      # `--grep-invert @external` drops the Swag Labs examples. They run against
+      # a third-party site, so an outage there would redden a nightly that says
+      # nothing about this repository. Run them on demand with
+      # `npm run test:saucedemo`.
       - name: Run the full suite
-        run: npx playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+        run: npx playwright test --grep-invert @external --shard=${{ matrix.shard }}/${{ strategy.job-total }}
 
       - name: Upload blob report
         if: ${{ !cancelled() }}
