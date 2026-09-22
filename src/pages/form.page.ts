@@ -3,14 +3,31 @@ import { test, type Locator, type Page } from '@playwright/test';
 import { NavComponent } from '../components/nav.component';
 import { BasePage } from './base.page';
 
+/**
+ * The fields that render a `<field>-error` element, so `fieldError` can only be
+ * asked for an error message the form is actually able to show.
+ */
 export type ItemFormField = 'name' | 'price' | 'quantity';
 
+/**
+ * Strings, not numbers: these values are typed into `<input>` elements
+ * verbatim. That is deliberate — it lets a spec submit '-1', '1.5' or 'abc' to
+ * exercise validation, which a numeric type would make unrepresentable.
+ */
 export interface ItemFormInput {
   name: string;
   price: string;
   quantity: string;
 }
 
+/**
+ * Models `form.html`, the create-item form, reached from the nav as 'New item'.
+ *
+ * Behind the same localStorage token guard as the inventory page: without a
+ * session it redirects straight to the login page. `createItem` wraps its fills
+ * in a `test.step`, so the trace and the report show one named action instead
+ * of four anonymous ones.
+ */
 export class FormPage extends BasePage {
   protected readonly path = '/form.html';
 

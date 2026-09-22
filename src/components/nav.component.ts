@@ -2,8 +2,20 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BaseComponent } from './base.component';
 
+/**
+ * The link labels in the main nav, as a closed set: a typo is then a compile
+ * error instead of a test that times out hunting a link which never existed.
+ */
 export type NavDestination = 'Inventory' | 'New item';
 
+/**
+ * The `Main` navigation landmark, present on every authenticated page.
+ *
+ * Because it is scoped to the navigation role, `goTo` cannot accidentally match
+ * a same-named link in the page body. `currentUser` shows which account the
+ * browser is actually running as, which is the quickest way to confirm a
+ * storage-state session is the one you expected.
+ */
 export class NavComponent extends BaseComponent {
   readonly currentUser: Locator;
   readonly logoutButton: Locator;

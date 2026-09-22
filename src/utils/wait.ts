@@ -1,5 +1,12 @@
 import { expect } from '@playwright/test';
 
+/**
+ * `description` is mandatory because a failing poll otherwise reports only
+ * "expected true, received false": it is the sole clue in a CI log as to what
+ * was being waited for.
+ *
+ * The timeout and interval defaults (30s, 250ms) are applied in `pollUntil`.
+ */
 export interface PollOptions {
   /** What is being waited for, used in the failure message. */
   description: string;

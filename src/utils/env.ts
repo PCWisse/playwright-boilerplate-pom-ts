@@ -21,6 +21,16 @@ if (!parsed.success) {
   );
 }
 
+/**
+ * Validated, typed configuration, parsed once when this module is first
+ * imported — which `playwright.config.ts` does. A missing or malformed variable
+ * therefore throws while the config is loading, before any test runs, instead
+ * of reappearing as a baffling failure in the middle of a suite.
+ *
+ * Every variable has a default pointing at the bundled demo app, so the
+ * template runs with no `.env` at all. Copy `.env.example` and override only
+ * what your project genuinely differs on.
+ */
 export const env = {
   baseURL: parsed.data.BASE_URL,
   // Playwright's `APIRequestContext` (and `new URL(path, base)`, which it

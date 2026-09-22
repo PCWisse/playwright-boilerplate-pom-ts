@@ -2,6 +2,11 @@ import AxeBuilder from '@axe-core/playwright';
 import { test as base } from '@playwright/test';
 import type { Result } from 'axe-core';
 
+/**
+ * Narrows a scan. Reach for `include` or `exclude` before `disableRules`:
+ * scoping leaves the rule enforced everywhere else on the page, whereas
+ * disabling it blinds the entire scan to that class of defect.
+ */
 export interface A11yCheckOptions {
   /** CSS selector to scan. Defaults to the whole page. */
   include?: string;
@@ -14,17 +19,38 @@ export interface A11yCheckOptions {
   tags?: string[];
 }
 
+/**
+ * `violationIds` is sorted, so it can be compared against an expected array
+ * without ordering flake. `violations` keeps the full axe records for when an
+ * assertion needs the offending nodes or the help URL.
+ */
 export interface A11yResult {
   violationIds: string[];
   violations: Result[];
 }
 
+/**
+ * `checkA11y` reports rather than asserts — it never fails a test by itself.
+ * Each spec therefore sets its own policy: zero violations on a new page, or a
+ * named allow-list while a legacy page is brought up to standard.
+ */
 export interface A11yFixtures {
   checkA11y: (options?: A11yCheckOptions) => Promise<A11yResult>;
 }
 
 const DEFAULT_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
+/**
+ * Merged into the shared `test` in `src/fixtures/index.ts` — specs import that,
+ * not this.
+ *
+ * Every scan attaches `axe-violations.json` to the test result, so a CI failure
+ * is diagnosable from the report alone without reproducing it locally.
+ *
+ * @example
+ * const { violationIds } = await checkA11y({ include: '[data-testid="accessible-region"]' });
+ * expect(violationIds).toEqual([]);
+ */
 export const a11yTest = base.extend<A11yFixtures>({
   checkA11y: async ({ page }, use, testInfo) => {
     await use(async (options: A11yCheckOptions = {}): Promise<A11yResult> => {

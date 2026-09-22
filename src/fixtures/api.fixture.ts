@@ -10,14 +10,34 @@ import { env } from '../utils/env';
 // is normalised in `src/utils/env.ts` to always end with `/`, so it can be
 // used directly here without any local workaround.
 
+/**
+ * Worker-scoped state. The login happens once per worker process and the token
+ * is reused by every test that worker runs, instead of paying for a round trip
+ * per test.
+ */
 export interface ApiWorkerFixtures {
   authToken: string;
 }
 
+/**
+ * Test-scoped state. Each test gets its own `ApiClient` over a fresh
+ * `APIRequestContext` that is disposed when the test ends; only the token
+ * underneath it is shared across the worker.
+ */
 export interface ApiTestFixtures {
   api: ApiClient;
 }
 
+/**
+ * Base test object for API work. `testDataTest` extends it, and
+ * `src/fixtures/index.ts` merges the result into the shared `test` that specs
+ * import.
+ *
+ * @example
+ * test('lists items', async ({ api }) => {
+ *   expect(await api.listItems()).toBeInstanceOf(Array);
+ * });
+ */
 export const apiTest = base.extend<ApiTestFixtures, ApiWorkerFixtures>({
   // Worker-scoped: log in once per worker instead of once per test.
   authToken: [

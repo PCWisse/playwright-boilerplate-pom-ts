@@ -2,8 +2,19 @@ import * as allure from 'allure-js-commons';
 
 import { env } from './env';
 
+/**
+ * The only severities Allure recognises, as a union so a typo fails the build
+ * instead of quietly producing a test with no severity at all.
+ */
 export type Severity = 'blocker' | 'critical' | 'normal' | 'minor' | 'trivial';
 
+/**
+ * Allure metadata for a single test; every field is optional.
+ *
+ * `epic`, `feature` and `story` form the report's three-level grouping tree, so
+ * they only pay off when a whole suite spells them consistently — agree the
+ * vocabulary once, at the start of a project.
+ */
 export interface Annotation {
   severity?: Severity;
   /** Top-level grouping, e.g. a product area. */
