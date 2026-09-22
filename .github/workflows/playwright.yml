@@ -1,27 +1,184 @@
 name: Playwright Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
+
+# Least privilege by default; the publish job adds only what it needs.
+permissions:
+  contents: read
+
+# A new push to the same branch cancels the previous run, except on main:
+# cancelling there could kill a GitHub Pages publish half-way through. On main
+# the runs queue instead, which also serialises the gh-pages force-push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
-  test:
-    timeout-minutes: 60
+  static-analysis:
+    name: Lint and typecheck
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+
+  test:
+    name: Test (shard ${{ matrix.shard }})
+    runs-on: ubuntu-24.04
+    # Run INSIDE the same image the committed Linux baselines were generated
+    # in. The runner OS version is not enough: screenshots depend on the font
+    # set, and this image's differs from the GitHub-hosted runner's even at the
+    # same Ubuntu version. demo-app's CSS asks for generic families only, so
+    # whichever face fontconfig resolves is what gets rendered. Comparing a
+    # report rendered with the runner's fonts against a baseline rendered with
+    # the image's fonts produces diffs no code change can explain.
+    #
+    # Keep this tag, `runs-on`, and the tag in `docs/ci.md` in step, and
+    # regenerate the baselines whenever you bump @playwright/test.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      # Chromium's default /dev/shm is too small in a container and crashes it.
+      options: --ipc=host
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # No browser install or cache step: the image already ships the browsers
+      # for exactly this Playwright version, which is the point of using it.
+
+      - name: Run tests
+        run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report/
+          retention-days: 7
+
+      - name: Upload Allure results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ matrix.shard }}
+          path: allure-results/
+          retention-days: 7
+
+  report:
+    name: Merge and publish reports
+    # Runs even when a shard failed: a failing run is exactly when the report
+    # is worth reading. `cancelled()` still short-circuits it.
+    if: ${{ !cancelled() }}
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      # Allure's CLI is a JVM program. Java is provisioned only in this job, so
+      # a JDK problem can never block the shards or the built-in report.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - run: npm ci
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v5
+        with:
+          pattern: blob-report-*
+          path: all-blob-reports
+          merge-multiple: true
+
+      - name: Download Allure results
+        uses: actions/download-artifact@v5
+        with:
+          pattern: allure-results-*
+          path: allure-results
+          merge-multiple: true
+
+      - name: Merge into a single HTML report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      # Checking out gh-pages into a sub-path is what gives Allure its trend and
+      # retry graphs. `continue-on-error` covers the very first run, when the
+      # branch does not exist yet.
+      - name: Check out the published site
+        id: gh-pages
+        continue-on-error: true
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: gh-pages-tmp
+          fetch-depth: 1
+
+      - name: Restore Allure history
+        if: steps.gh-pages.outcome == 'success'
+        run: |
+          if [ -d ./gh-pages-tmp/allure/history ]; then
+            cp -r ./gh-pages-tmp/allure/history allure-results/history
+          fi
+
+      - name: Generate Allure report
+        run: npx allure generate allure-results --clean --output allure-report
+
+      - name: Assemble the published site
+        run: |
+          mkdir -p site/allure
+          cp -r playwright-report/. site/
+          cp -r allure-report/. site/allure/
+
+      # WARNING: on a public repository this site is world-readable, and a
+      # Playwright report embeds traces, videos and screenshots from failed
+      # runs. Traces carry request/response bodies and the storageState used to
+      # authenticate, neither of which is redacted. Publish from a private repo,
+      # or drop the trace/video artifacts before publishing, if your tests touch
+      # anything real. See docs/ci.md.
+      - name: Publish to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          keep_files: false
+
+      # Not gated on the Allure step succeeding: if `allure generate` fails the
+      # Playwright report is still worth having, and losing both is worse.
+      - name: Upload the merged report as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-reports
+          path: site/
+          retention-days: 30

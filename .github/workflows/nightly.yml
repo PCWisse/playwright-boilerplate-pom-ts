@@ -1,0 +1,80 @@
+name: Nightly full suite
+
+on:
+  schedule:
+    # 02:30 UTC every weekday.
+    - cron: '30 2 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Nightly (shard ${{ matrix.shard }}/4)
+    runs-on: ubuntu-24.04
+    # Same image as the PR workflow, for the same reason: this run includes the
+    # visual project, and the committed Linux baselines were rendered with this
+    # image's fonts. See the comment in playwright.yml.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      # The image ships every browser for this Playwright version, so nothing
+      # needs installing. Unlike the PR workflow, the nightly run uses them all.
+
+      # `--grep-invert @external` drops the Swag Labs examples. They run against
+      # a third-party site, so an outage there would redden a nightly that says
+      # nothing about this repository. Run them on demand with
+      # `npm run test:saucedemo`.
+      - name: Run the full suite
+        run: npx playwright test --grep-invert @external --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-blob-report-${{ matrix.shard }}
+          path: blob-report/
+          retention-days: 7
+
+  report:
+    name: Merge nightly reports
+    if: ${{ !cancelled() }}
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: nightly-blob-report-*
+          path: all-blob-reports
+          merge-multiple: true
+      - run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nightly-report
+          path: playwright-report/
+          retention-days: 30

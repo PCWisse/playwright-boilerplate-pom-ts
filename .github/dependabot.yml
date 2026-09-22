@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      # Playwright's runner and its browser images move together; a grouped PR
+      # keeps them in step. Note that bumping @playwright/test also means
+      # bumping the pinned image tag in the workflows and regenerating the
+      # Linux screenshot baselines.
+      playwright:
+        patterns:
+          - '@playwright/*'
+          - 'playwright*'
+          - '@axe-core/*'
+          - 'axe-core'
+      allure:
+        patterns:
+          - 'allure-*'
+      tooling:
+        patterns:
+          - 'eslint*'
+          - 'typescript*'
+          - 'prettier'
+          - '@types/*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci

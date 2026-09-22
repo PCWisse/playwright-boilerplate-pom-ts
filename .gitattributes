@@ -1,0 +1,17 @@
+# Normalise line endings for everyone.
+#
+# Git for Windows defaults to core.autocrlf=true, which checks text files out
+# as CRLF. Prettier is configured with `"endOfLine": "lf"`, so without this a
+# fresh Windows clone fails `npm run format:check` on every tracked text file
+# before the user has changed anything, and their first commit then has
+# lint-staged rewrite each staged file to LF.
+* text=auto eol=lf
+
+# The hooks are run by `sh`, which on Linux (`sh -e`, as husky's own runner
+# uses) treats a trailing carriage return as part of the command and dies with
+# `Missing script: "typecheck"`. Covered by the rule above, but kept explicit
+# because it is the one place where CRLF is fatal rather than merely noisy.
+.husky/** text eol=lf
+
+# Screenshot baselines are binary: never touch them.
+*.png -text

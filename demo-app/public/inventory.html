@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventory | Demo Shop</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <nav aria-label="Main">
+      <a href="/inventory.html">Inventory</a>
+      <a href="/form.html">New item</a>
+      <span class="spacer"></span>
+      <span data-testid="current-user"></span>
+      <button type="button" data-testid="logout" style="margin: 0">Sign out</button>
+    </nav>
+    <main>
+      <h1>Inventory</h1>
+      <label for="search">Search items</label>
+      <input id="search" data-testid="search" type="search" />
+      <table data-testid="inventory-table">
+        <caption class="timestamp">
+          Products currently in stock
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+          </tr>
+        </thead>
+        <tbody data-testid="inventory-body"></tbody>
+      </table>
+      <p data-testid="empty-state" hidden>No items match your search.</p>
+    </main>
+    <script src="/inventory.js"></script>
+  </body>
+</html>

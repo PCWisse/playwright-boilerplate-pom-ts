@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Accessibility playground | Demo Shop</title>
+    <link rel="stylesheet" href="/app.css" />
+    <style>
+      /* Intentional violation: 1.9:1 contrast, fails WCAG AA. */
+      .low-contrast {
+        color: #b6bcc4;
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Accessibility playground</h1>
+
+      <!-- Intentional violation: image-alt -->
+      <img src="/logo.svg" width="48" height="48" />
+
+      <!-- Intentional violation: label -->
+      <input type="text" placeholder="Your email" />
+
+      <!-- Intentional violation: color-contrast -->
+      <p class="low-contrast">This paragraph does not meet the contrast minimum.</p>
+
+      <!-- Intentional violation: link-name -->
+      <a href="/inventory.html"></a>
+
+      <!-- This region is accessible; the scoped-scan example excludes the rest. -->
+      <section data-testid="accessible-region" aria-labelledby="ok-heading">
+        <h2 id="ok-heading">This section is accessible</h2>
+        <p>Everything inside this region passes the same axe rules.</p>
+        <button type="button">A properly named button</button>
+      </section>
+    </main>
+  </body>
+</html>

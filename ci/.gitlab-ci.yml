@@ -1,0 +1,134 @@
+# GitLab CI/CD pipeline.
+#
+# NOTE: this file is NOT at the repository root, where GitLab looks by default.
+# Point GitLab at it once, under Settings -> CI/CD -> General pipelines ->
+# "CI/CD configuration file", and set the value to:
+#
+#   ci/.gitlab-ci.yml
+#
+# Without that setting GitLab reports "project does not have a .gitlab-ci.yml"
+# and no pipeline runs at all. Azure Pipelines and Jenkins need no equivalent
+# step: both take the file path when you create the pipeline or job.
+#
+# Mirrors .github/workflows/playwright.yml: static
+# analysis, four test shards, then one job that merges the blob reports into a
+# single HTML report and generates the Allure report.
+#
+# Every job runs INSIDE the same image the committed Linux screenshot baselines
+# were generated in. The distro version alone is not enough: screenshots depend
+# on the font set, and demo-app's CSS asks for generic families only, so
+# whichever face fontconfig resolves is what gets rendered. Comparing a render
+# made with another image's fonts against these baselines produces diffs no code
+# change can explain. The image already ships the browsers and their system
+# dependencies, so there is no `playwright install` step anywhere below.
+#
+# Keep this tag in step with @playwright/test in package.json, with the tag in
+# .github/workflows/playwright.yml, ci/azure-pipelines.yml and ci/Jenkinsfile, and
+# regenerate the baselines whenever you bump it. See docs/ci.md.
+image: mcr.microsoft.com/playwright:v1.62.1-noble
+
+# Without this, GitLab runs the whole four-shard pipeline on every push to
+# every branch. The other three platforms all gate on main plus merge
+# requests, and an ungated pipeline is real money from day one. Adjust the
+# branch name if your default is not `main`.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'web'
+
+stages:
+  - static
+  - test
+  - report
+
+variables:
+  npm_config_cache: '$CI_PROJECT_DIR/.npm'
+  # Must match the number of entries in the test job's parallel matrix below.
+  SHARD_TOTAL: '4'
+
+# Chromium needs more than the 64 MB /dev/shm Docker gives a container by
+# default or it crashes mid-run. This file cannot set that; it is a
+# runner setting. In config.toml, under [runners.docker], set either
+# `ipc = "host"` or `shm_size = 2147483648`.
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+
+.install: &install
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+
+static-analysis:
+  stage: static
+  <<: *install
+  script:
+    - npm run lint
+    - npm run typecheck
+    - npm run format:check
+
+test:
+  stage: test
+  <<: *install
+  timeout: 30 minutes
+  parallel:
+    matrix:
+      - SHARD_INDEX: ['1', '2', '3', '4']
+  script:
+    - npm run test:ci -- --shard=$SHARD_INDEX/$SHARD_TOTAL
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - blob-report/
+      - allure-results/
+
+report:
+  stage: report
+  # The report is most valuable exactly when a shard failed, so this job must
+  # not be gated on the test job succeeding.
+  when: always
+  needs:
+    - job: test
+      artifacts: true
+  <<: *install
+  script:
+    # Allure's CLI is a JVM program and the Playwright image ships no JDK, so
+    # Java is installed here and only here: a JDK problem can never break the
+    # shards or the built-in Playwright report.
+    - apt-get update && apt-get install -y --no-install-recommends default-jre-headless
+    # All four shards uploaded artifacts rooted at blob-report/, and Playwright
+    # names each shard's blob uniquely (report-<n>.zip), so the flattened
+    # directory holds all four.
+    - npx playwright merge-reports --reporter html ./blob-report
+    - npx allure generate allure-results --clean --output allure-report
+    - mkdir -p public/allure
+    # `/.` rather than `/*`: the glob form silently drops dotfiles.
+    - cp -r playwright-report/. public/
+    - cp -r allure-report/. public/allure/
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - public/
+
+# WARNING: unless the project's Pages site is set to members-only, this is
+# world-readable, and a Playwright report embeds the traces, videos and
+# screenshots of failed runs. Traces carry request/response bodies and the
+# storageState used to authenticate, neither of which is redacted. Restrict
+# Pages access, or drop the trace/video artifacts before publishing, if your
+# tests touch anything real. See docs/ci.md.
+pages:
+  stage: report
+  needs: ['report']
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - echo "Publishing the merged Playwright and Allure reports to GitLab Pages"
+  artifacts:
+    paths:
+      - public/

@@ -1,0 +1,9 @@
+# Format and lint only what is staged, then type-check the whole project.
+#
+# `tsc --noEmit` is deliberately NOT a lint-staged entry: lint-staged appends
+# the staged filenames to every command it runs, and `tsc` refuses file
+# arguments when a tsconfig.json is in play. It therefore runs as its own step
+# here, which checks the working tree against tsconfig "include" rather than
+# the staged snapshot: the usual trade for this pattern.
+npx lint-staged
+npm run typecheck

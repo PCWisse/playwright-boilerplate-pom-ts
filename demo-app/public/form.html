@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New item | Demo Shop</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <nav aria-label="Main">
+      <a href="/inventory.html">Inventory</a>
+      <a href="/form.html">New item</a>
+      <span class="spacer"></span>
+      <span data-testid="current-user"></span>
+      <button type="button" data-testid="logout" style="margin: 0">Sign out</button>
+    </nav>
+    <main>
+      <h1>New item</h1>
+      <form id="item-form" data-testid="item-form" novalidate>
+        <label for="name">Name</label>
+        <input id="name" name="name" data-testid="name" />
+        <p class="field-error" data-testid="name-error" hidden></p>
+        <label for="price">Price</label>
+        <input id="price" name="price" data-testid="price" inputmode="decimal" />
+        <p class="field-error" data-testid="price-error" hidden></p>
+        <label for="quantity">Quantity</label>
+        <input id="quantity" name="quantity" data-testid="quantity" inputmode="numeric" />
+        <p class="field-error" data-testid="quantity-error" hidden></p>
+        <button type="submit" data-testid="item-submit">Create item</button>
+      </form>
+      <p class="success" data-testid="item-success" role="status" hidden></p>
+    </main>
+    <script src="/form.js"></script>
+  </body>
+</html>

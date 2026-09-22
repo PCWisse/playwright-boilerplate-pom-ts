@@ -1,0 +1,168 @@
+# Azure Pipelines. Mirrors .github/workflows/playwright.yml: static analysis,
+# four test shards, then a job that merges the blob reports into one HTML report
+# and generates the Allure report.
+
+trigger:
+  branches:
+    include: [main]
+
+pr:
+  branches:
+    include: [main]
+
+variables:
+  # Must match the number of cells in the Playwright job's matrix below.
+  SHARD_TOTAL: 4
+
+stages:
+  - stage: StaticAnalysis
+    displayName: Static analysis
+    jobs:
+      - job: LintAndTypecheck
+        displayName: Lint, typecheck and format check
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: NodeTool@0
+            displayName: Use Node 20
+            inputs:
+              versionSpec: '20.x'
+          - script: npm ci
+            displayName: Install dependencies
+          - script: npm run lint
+            displayName: Lint
+          - script: npm run typecheck
+            displayName: Typecheck
+          - script: npm run format:check
+            displayName: Check formatting
+
+  - stage: Test
+    displayName: Test
+    dependsOn: StaticAnalysis
+    jobs:
+      - job: Playwright
+        displayName: Playwright
+        pool:
+          vmImage: ubuntu-latest
+        # Run INSIDE the same image the committed Linux screenshot baselines
+        # were generated in. A hosted ubuntu image at the same distro version is
+        # NOT equivalent: screenshots depend on the font set, and demo-app's CSS
+        # names generic families only, so whichever face fontconfig resolves is
+        # what gets rendered. Comparing a render made with the hosted agent's
+        # fonts against these baselines produces diffs no code change can
+        # explain. Any job running the `visual` project must stay in here.
+        #
+        # Keep this tag in step with @playwright/test in package.json and with
+        # the tag in .github/workflows/playwright.yml, ci/.gitlab-ci.yml and
+        # ci/Jenkinsfile, and regenerate the baselines whenever you bump it.
+        container:
+          image: mcr.microsoft.com/playwright:v1.62.1-noble
+          # Chromium's default /dev/shm is too small in a container and crashes.
+          options: --ipc=host
+        timeoutInMinutes: 30
+        strategy:
+          matrix:
+            shard1: { SHARD_INDEX: 1 }
+            shard2: { SHARD_INDEX: 2 }
+            shard3: { SHARD_INDEX: 3 }
+            shard4: { SHARD_INDEX: 4 }
+        steps:
+          # No NodeTool and no `playwright install`: the image already ships
+          # Node and the browsers built for exactly this Playwright version,
+          # which is the whole point of running in it.
+          - script: node --version && npm --version
+            displayName: Show toolchain versions
+          - script: npm ci
+            displayName: Install dependencies
+          - script: npm run test:ci -- --shard=$(SHARD_INDEX)/$(SHARD_TOTAL)
+            displayName: Run tests
+            env:
+              CI: 'true'
+          - task: PublishPipelineArtifact@1
+            displayName: Publish blob report
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/blob-report
+              artifact: blob-report-$(SHARD_INDEX)
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Allure results
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/allure-results
+              artifact: allure-results-$(SHARD_INDEX)
+
+  - stage: Report
+    displayName: Merge and publish reports
+    dependsOn: Test
+    # A failing run is exactly when the report is worth reading.
+    condition: succeededOrFailed()
+    jobs:
+      - job: MergeReports
+        displayName: Merge reports
+        # Deliberately NOT in the Playwright container: this job runs no
+        # browsers, and Allure's CLI is a JVM program the image has no JDK for.
+        # The hosted agent provides both Node and a pre-installed JDK, so a Java
+        # problem can never block the shards or the built-in Playwright report.
+        pool:
+          vmImage: ubuntu-latest
+        timeoutInMinutes: 15
+        steps:
+          - task: NodeTool@0
+            displayName: Use Node 20
+            inputs:
+              versionSpec: '20.x'
+          - task: JavaToolInstaller@0
+            displayName: Use JDK 17 for the Allure CLI
+            inputs:
+              versionSpec: '17'
+              jdkArchitectureOption: x64
+              jdkSourceOption: PreInstalled
+          - script: npm ci
+            displayName: Install dependencies
+          - task: DownloadPipelineArtifact@2
+            displayName: Download blob reports
+            inputs:
+              patterns: 'blob-report-*/**'
+              path: $(Pipeline.Workspace)/all-blob-reports
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Allure results
+            inputs:
+              patterns: 'allure-results-*/**'
+              path: $(Pipeline.Workspace)/allure-results
+          # DownloadPipelineArtifact@2 creates ONE SUBDIRECTORY PER ARTIFACT, so
+          # the download root holds blob-report-1/, blob-report-2/, ... rather
+          # than the .zip files themselves. Both `merge-reports` and `allure
+          # generate` read their input directory non-recursively and would find
+          # nothing there. Flattening is the equivalent of the GitHub workflow's
+          # `merge-multiple: true`, and it is safe because Playwright names each
+          # shard's blob uniquely (report-<n>.zip) and Allure result filenames
+          # are UUIDs.
+          - bash: |
+              set -euo pipefail
+              mkdir -p "$(Pipeline.Workspace)/blob-flat" "$(Pipeline.Workspace)/allure-flat"
+              find "$(Pipeline.Workspace)/all-blob-reports" -type f -exec cp -n {} "$(Pipeline.Workspace)/blob-flat/" \;
+              find "$(Pipeline.Workspace)/allure-results" -type f -exec cp -n {} "$(Pipeline.Workspace)/allure-flat/" \;
+              ls "$(Pipeline.Workspace)/blob-flat"
+            displayName: Flatten downloaded artifacts
+          - script: npx playwright merge-reports --reporter html $(Pipeline.Workspace)/blob-flat
+            displayName: Merge blob reports
+          - script: npx allure generate $(Pipeline.Workspace)/allure-flat --clean --output allure-report
+            displayName: Generate Allure report
+          # WARNING: a Playwright report embeds the traces, videos and
+          # screenshots of failed runs. Traces carry request/response bodies and
+          # the storageState used to authenticate, neither of which is redacted.
+          # Pipeline artifacts inherit the project's visibility: in a public
+          # project anyone can download this. Drop the trace/video artifacts
+          # before publishing if your tests touch anything real. See docs/ci.md.
+          - task: PublishPipelineArtifact@1
+            displayName: Publish merged Playwright report
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/playwright-report
+              artifact: playwright-report
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Allure report
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/allure-report
+              artifact: allure-report

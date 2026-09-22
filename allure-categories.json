@@ -1,0 +1,31 @@
+[
+  {
+    "name": "Broken environment",
+    "matchedStatuses": ["broken"],
+    "messageRegex": ".*(ECONNREFUSED|ENOTFOUND|net::ERR_CONNECTION|Timeout .* exceeded while waiting for the server).*"
+  },
+  {
+    "name": "API contract drift",
+    "matchedStatuses": ["failed", "broken"],
+    "messageRegex": ".*does not match its schema.*"
+  },
+  {
+    "name": "Accessibility violations",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*(color-contrast|image-alt|link-name|label).*"
+  },
+  {
+    "name": "Visual differences",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*Screenshot comparison failed.*"
+  },
+  {
+    "name": "Flaky",
+    "matchedStatuses": ["passed"],
+    "flaky": true
+  },
+  {
+    "name": "Product defects (uncategorised)",
+    "matchedStatuses": ["failed"]
+  }
+]

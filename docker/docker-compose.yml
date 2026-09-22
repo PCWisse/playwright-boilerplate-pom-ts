@@ -1,0 +1,38 @@
+# Without this the project name is derived from the directory holding this
+# file, i.e. "docker", which collides with every other project laid out the
+# same way.
+name: playwright-template
+
+services:
+  tests:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    # Chromium needs a large /dev/shm or it crashes on some hosts. `ipc: host`
+    # is what the Playwright docs recommend; `shm_size: 1gb` is the fallback if
+    # your host disallows host IPC namespaces.
+    ipc: host
+    # Surfaces browser zombie processes to PID 1 so an interrupted run does not
+    # leave orphaned Chromium processes behind.
+    init: true
+    environment:
+      CI: 'true'
+    volumes:
+      # Mount the repo so reports and updated baselines land on the host.
+      - ..:/work
+      # Anonymous volume: without it the bind mount above shadows the image's
+      # /work/node_modules with the host's, which on Windows/macOS means
+      # foreign-platform binaries and an immediately broken run. Docker seeds
+      # this volume from the image layer, so the container keeps its own
+      # Linux-built modules. `docker compose run --rm` discards it afterwards.
+      - /work/node_modules
+    # Playwright defaults to roughly half the host's CPU count in workers, and
+    # each worker is a browser. On a memory-capped Docker VM (Docker Desktop on
+    # Windows/macOS defaults to a fraction of host RAM; a `~/.wslconfig`
+    # `memory=` line caps it further) that can exhaust the VM and take the
+    # engine down with it. If runs die or hang, cap it:
+    #   docker compose -f docker/docker-compose.yml run --rm tests \
+    #     npx playwright test --workers=2
+    # Capped by default rather than documented-only: the uncapped path is the
+    # one that actually takes the engine down, so it should not be the default.
+    command: npm test -- --workers=2
