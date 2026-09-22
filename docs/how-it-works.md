@@ -1,6 +1,6 @@
 # How it works
 
-An orientation for someone who has not used Playwright before. Read this once,
+An orientation for someone who is not used to work with Playwright. Read this once,
 top to bottom, and the rest of `docs/` will make sense.
 
 The other guides answer "how do I do X". This one answers "what am I looking at
@@ -303,7 +303,7 @@ When you adapt the template, `demo-app/` is the first thing to delete. See
 | [ci.md](ci.md)                                               | Pipelines, reports, visual baselines, data exposure |
 | [adapting-to-a-new-project.md](adapting-to-a-new-project.md) | Turning this into your project                      |
 
-Official documentation: <https://playwright.dev/docs/intro>. The
+Official documentation: [https://playwright.dev/docs/intro](https://playwright.dev/docs/intro). The
 [best practices guide](https://playwright.dev/docs/best-practices) is short and
 this template follows it deliberately — if something here looks unusual, that
 page probably explains why.

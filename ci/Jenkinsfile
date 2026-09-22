@@ -17,8 +17,8 @@
 // face fontconfig resolves is what gets rendered. Comparing a render made on a
 // bare Jenkins agent against these baselines produces diffs no code change can
 // explain. Keep this tag in step with @playwright/test in package.json and with
-// the tag in .github/workflows/playwright.yml, .gitlab-ci.yml and
-// azure-pipelines.yml. See docs/ci.md.
+// the tag in .github/workflows/playwright.yml, ci/.gitlab-ci.yml and
+// ci/azure-pipelines.yml. See docs/ci.md.
 
 pipeline {
   // `agent none` on purpose: the browser stages need the Playwright image, the

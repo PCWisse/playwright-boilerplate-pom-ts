@@ -30,8 +30,24 @@ failures.
 | Accessibility | `@axe-core/playwright` fixture with scoping, exclusions and attached violation reports                                     |
 | Visual        | Full-page and component snapshots, masking, per-project/platform baselines                                                 |
 | Reporting     | Built-in HTML merged across shards, plus Allure with history, severities and ticket links                                  |
-| CI            | GitHub Actions (+ nightly + Dependabot), GitLab CI, Azure Pipelines, Jenkins                                               |
+| CI            | GitHub Actions (+ nightly + Dependabot), plus GitLab CI, Azure Pipelines and Jenkins under `ci/`                           |
 | Tooling       | TypeScript strict, ESLint with type-aware and Playwright rules, Prettier, Husky, Docker, devcontainer                      |
+
+## Layout
+
+```
+src/                 page objects, components, fixtures, API client, helpers
+tests/               specs: ui/, api/, a11y/, visual/
+demo-app/            the bundled app the examples run against — delete this first
+docs/                the guides linked below
+ci/                  GitLab, Azure and Jenkins pipelines
+.github/workflows/   GitHub Actions (must live here; GitHub does not look elsewhere)
+docker/              Dockerfile and compose file
+```
+
+GitLab needs one setting to find its file outside the root — see
+[docs/ci.md](docs/ci.md). Azure and Jenkins take the path when you create the
+pipeline, so they need nothing extra.
 
 ## Commands
 

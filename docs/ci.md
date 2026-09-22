@@ -7,9 +7,16 @@ Four pipelines ship with the template. Keep the one you use and delete the rest.
 | Platform        | File                                                                |
 | --------------- | ------------------------------------------------------------------- |
 | GitHub Actions  | `.github/workflows/playwright.yml`, `.github/workflows/nightly.yml` |
-| GitLab CI       | `.gitlab-ci.yml`                                                    |
-| Azure Pipelines | `azure-pipelines.yml`                                               |
-| Jenkins         | `Jenkinsfile`                                                       |
+| GitLab CI       | `ci/.gitlab-ci.yml`                                                 |
+| Azure Pipelines | `ci/azure-pipelines.yml`                                            |
+| Jenkins         | `ci/Jenkinsfile`                                                    |
+
+The three non-GitHub files live under `ci/` to keep the repository root
+readable. Azure Pipelines and Jenkins take the file path when you create the
+pipeline or job, so that costs nothing. **GitLab is the exception**: it looks
+for `.gitlab-ci.yml` at the root, so set Settings → CI/CD → General pipelines →
+_CI/CD configuration file_ to `ci/.gitlab-ci.yml` once. Until you do, GitLab
+reports that the project has no `.gitlab-ci.yml` and runs nothing.
 
 All four share the same shape: a static-analysis job (`npm run lint`,
 `npm run typecheck`, `npm run format:check`), a four-way sharded test matrix
@@ -25,12 +32,12 @@ The shard count is four everywhere, but it is expressed differently per
 platform. Change **both** halves together or the denominator drifts from the
 matrix:
 
-| Platform | Index                         | Denominator                              |
-| -------- | ----------------------------- | ---------------------------------------- |
-| GitHub   | `matrix.shard: [1, 2, 3, 4]`  | `${{ strategy.job-total }}`              |
-| GitLab   | `SHARD_INDEX` parallel matrix | `SHARD_TOTAL` (`.gitlab-ci.yml:26`)      |
-| Azure    | `SHARD_INDEX` per matrix leg  | `SHARD_TOTAL` (`azure-pipelines.yml:15`) |
-| Jenkins  | `SHARD_INDEX` axis            | `SHARD_TOTAL` (`Jenkinsfile:39`)         |
+| Platform | Index                         | Denominator                                 |
+| -------- | ----------------------------- | ------------------------------------------- |
+| GitHub   | `matrix.shard: [1, 2, 3, 4]`  | `${{ strategy.job-total }}`                 |
+| GitLab   | `SHARD_INDEX` parallel matrix | `SHARD_TOTAL` (`ci/.gitlab-ci.yml:48`)      |
+| Azure    | `SHARD_INDEX` per matrix leg  | `SHARD_TOTAL` (`ci/azure-pipelines.yml:15`) |
+| Jenkins  | `SHARD_INDEX` axis            | `SHARD_TOTAL` (`ci/Jenkinsfile:39`)         |
 
 GitHub derives the denominator from the matrix, so it cannot drift. The other
 three cannot, so their variable and their matrix must be edited as a pair.
@@ -104,15 +111,15 @@ Checklist. Nine occurrences across seven files:
 - [ ] `package.json` — `@playwright/test`
 - [ ] `.github/workflows/playwright.yml` (line 50)
 - [ ] `.github/workflows/nightly.yml` (line 24)
-- [ ] `.gitlab-ci.yml` (line 16)
-- [ ] `azure-pipelines.yml` (line 59)
-- [ ] `Jenkinsfile` — **three** occurrences (lines 46, 67 and 107)
+- [ ] `ci/.gitlab-ci.yml` (line 28)
+- [ ] `ci/azure-pipelines.yml` (line 59)
+- [ ] `ci/Jenkinsfile` — **three** occurrences (lines 46, 67 and 107)
 - [ ] `docker/Dockerfile` (line 5)
 - [ ] `.devcontainer/devcontainer.json` (line 3)
 - [ ] Regenerate the Linux visual baselines (above) and commit them
 - [ ] Regenerate your own platform's baselines too, if you run visual locally
 
-`Jenkinsfile` is the one people miss. Verify with:
+`ci/Jenkinsfile` is the one people miss. Verify with:
 
 ```bash
 grep -rn "mcr.microsoft.com/playwright:v" --exclude-dir=node_modules --exclude-dir=.git .
@@ -141,7 +148,7 @@ until you add a history restore of your own.
 
 Downloaded shard artifacts must land in **one flat directory**. Azure's
 `DownloadPipelineArtifact@2` nests one directory per artifact, which is why
-`azure-pipelines.yml` has an explicit flatten step.
+`ci/azure-pipelines.yml` has an explicit flatten step.
 
 Skipping it fails in two different ways, and only one of them is loud:
 `merge-reports` on a nested layout exits 1, but `allure generate` on a nested

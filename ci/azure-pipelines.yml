@@ -53,8 +53,8 @@ stages:
         # explain. Any job running the `visual` project must stay in here.
         #
         # Keep this tag in step with @playwright/test in package.json and with
-        # the tag in .github/workflows/playwright.yml, .gitlab-ci.yml and the
-        # Jenkinsfile, and regenerate the baselines whenever you bump it.
+        # the tag in .github/workflows/playwright.yml, ci/.gitlab-ci.yml and
+        # ci/Jenkinsfile, and regenerate the baselines whenever you bump it.
         container:
           image: mcr.microsoft.com/playwright:v1.62.1-noble
           # Chromium's default /dev/shm is too small in a container and crashes.

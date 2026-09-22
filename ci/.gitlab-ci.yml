@@ -1,4 +1,16 @@
-# GitLab CI/CD pipeline. Mirrors .github/workflows/playwright.yml: static
+# GitLab CI/CD pipeline.
+#
+# NOTE: this file is NOT at the repository root, where GitLab looks by default.
+# Point GitLab at it once, under Settings -> CI/CD -> General pipelines ->
+# "CI/CD configuration file", and set the value to:
+#
+#   ci/.gitlab-ci.yml
+#
+# Without that setting GitLab reports "project does not have a .gitlab-ci.yml"
+# and no pipeline runs at all. Azure Pipelines and Jenkins need no equivalent
+# step: both take the file path when you create the pipeline or job.
+#
+# Mirrors .github/workflows/playwright.yml: static
 # analysis, four test shards, then one job that merges the blob reports into a
 # single HTML report and generates the Allure report.
 #
@@ -11,7 +23,7 @@
 # dependencies, so there is no `playwright install` step anywhere below.
 #
 # Keep this tag in step with @playwright/test in package.json, with the tag in
-# .github/workflows/playwright.yml, azure-pipelines.yml and the Jenkinsfile, and
+# .github/workflows/playwright.yml, ci/azure-pipelines.yml and ci/Jenkinsfile, and
 # regenerate the baselines whenever you bump it. See docs/ci.md.
 image: mcr.microsoft.com/playwright:v1.62.1-noble
 
@@ -36,7 +48,7 @@ variables:
   SHARD_TOTAL: '4'
 
 # Chromium needs more than the 64 MB /dev/shm Docker gives a container by
-# default or it crashes mid-run. `.gitlab-ci.yml` cannot set that; it is a
+# default or it crashes mid-run. This file cannot set that; it is a
 # runner setting. In config.toml, under [runners.docker], set either
 # `ipc = "host"` or `shm_size = 2147483648`.
 
