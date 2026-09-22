@@ -15,7 +15,7 @@ What is already solved for you:
 - A test runner configured for parallel, isolated, retryable runs
 - A Page Object Model layer with a base class and reusable components
 - Composable fixtures: logged-in pages, an API client, an accessibility scanner, disposable test data
-- Four kinds of testing, each with working examples: **UI**, **API**, **accessibility**, **visual regression**
+- Four kinds of testing, each with working examples: **UI**, **API**, **accessibility** (`a11y`: an `a`, 11 letters, a `y`), **visual regression**
 - Four CI platforms, pre-wired: GitHub Actions, GitLab CI, Azure Pipelines, Jenkins
 - Reporting: the built-in HTML report, plus Allure
 - A bundled demo application, so every example runs offline with nothing to install and nothing to log into

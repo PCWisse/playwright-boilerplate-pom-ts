@@ -125,13 +125,13 @@ hunting for a trace that was never recorded.
 `src/utils/env.ts` validates the environment with zod at load time, before any browser starts. A missing or malformed variable fails immediately with the offending field name rather than surfacing as
 a confusing timeout.
 
-| Variable                          | Default                           | Purpose                           |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| `BASE_URL`                        | `http://127.0.0.1:4173`           | Application under test            |
-| `API_URL`                         | `http://127.0.0.1:4173/api`       | API under test                    |
-| `DEMO_PORT`                       | `4173`                            | Port for the bundled demo app     |
-| `TEST_USERNAME` / `TEST_PASSWORD` | demo credentials                  | Used by `src/setup/auth.setup.ts` |
-| `TICKET_BASE_URL`                 | `https://example.invalid/browse/` | Prefix for Allure issue links     |
+| Variable                          | Default                           | Purpose                          |
+| --------------------------------- | --------------------------------- | -------------------------------- |
+| `BASE_URL`                        | `http://127.0.0.1:4173`           | Application under test           |
+| `API_URL`                         | `http://127.0.0.1:4173/api`       | API under test                   |
+| `DEMO_PORT`                       | `4173`                            | Port for the bundled demo app    |
+| `TEST_USERNAME` / `TEST_PASSWORD` | demo credentials                  | Used by`src/setup/auth.setup.ts` |
+| `TICKET_BASE_URL`                 | `https://example.invalid/browse/` | Prefix for Allure issue links    |
 
 Never put a real credential in `.env.example`. `.env` is git-ignored; real values belong in your CI secret store.
 

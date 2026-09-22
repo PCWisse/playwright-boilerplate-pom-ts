@@ -23,7 +23,7 @@ Everything runs against the bundled demo app in `demo-app/`, so the suite is gre
 | Structure     | Page objects, root-scoped components, fixtures split by concern and merged with `mergeTests`                               |
 | UI examples   | `storageState` auth, table interaction, form validation with soft assertions, network mocking, `@smoke`/`@regression` tags |
 | API examples  | Typed client, zod-validated responses, CRUD, negative paths, a UI test seeded over the API                                 |
-| Accessibility | `@axe-core/playwright` fixture with scoping, exclusions and attached violation reports                                     |
+| Accessibility | `@axe-core/playwright` fixture (a11y = accessibility) with scoping, exclusions and attached violation reports              |
 | Visual        | Full-page and component snapshots, masking, per-project/platform baselines                                                 |
 | Reporting     | Built-in HTML merged across shards, plus Allure with history, severities and ticket links                                  |
 | CI            | GitHub Actions (+ nightly + Dependabot), plus GitLab CI, Azure Pipelines and Jenkins under `ci/`                           |
@@ -55,7 +55,7 @@ GitLab needs one setting to find its file outside the root. See [docs/ci.md](doc
 | `npm run test:debug`            | Step through with the Playwright inspector            |
 | `npm run test:headed`           | Run with a visible browser window                     |
 | `npm run test:api`              | Only the`api` project                                 |
-| `npm run test:a11y`             | Only the`a11y` project                                |
+| `npm run test:a11y`             | Only the `a11y` project                               |
 | `npm run test:visual`           | Only the`visual` project                              |
 | `npm run test:update-snapshots` | Refresh changed visual baselines                      |
 | `npm run codegen`               | Record a test and generate locators                   |

@@ -152,6 +152,35 @@ test('signs in with valid credentials', { tag: ['@smoke'] }, async ({ loginPage 
 
 Run a subset with `npm run test:smoke`, `npm run test:regression`, or `npx playwright test --grep @api`.
 
+## Accessibility
+
+`a11y` is the usual shorthand for _accessibility_: an `a`, the 11 letters between, a `y`.
+
+`checkA11y()` runs [axe-core](https://github.com/dequelabs/axe-core) inside the page and checks the rendered DOM against **WCAG 2.1 Level A and AA** (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, set as
+the default tags in `src/fixtures/a11y.fixture.ts`). It returns violation ids such as `color-contrast`, `image-alt` or `link-name`, and attaches the full report to the test result so a CI failure is
+diagnosable without re-running it locally.
+
+Scan a real, settled page. Log in first if the page needs it, and gate on the content having rendered, or you scan a redirect or a half-built DOM and get a meaningless pass. Both traps are live in
+`tests/a11y/accessibility.spec.ts`.
+
+### Narrow a scan honestly
+
+`exclude` drops a subtree: use it for a third-party widget or embed you genuinely cannot change. `disableRules` switches a rule off everywhere: use it for an accepted design decision. Either way,
+**write down why in the test**. An undocumented exclusion is indistinguishable from a bug someone hid.
+
+Prove the narrowing worked. `tests/a11y/accessibility.spec.ts` asserts that excluding `img` and disabling `color-contrast` leaves exactly `['link-name']`, so a narrowing that silently matched nothing
+fails the test.
+
+### What this does not cover
+
+Automated scanning finds roughly **30 to 40 percent** of real accessibility problems. It is a regression net, not a certificate, and it should never be reported as "the app is accessible".
+
+axe can tell you an image has no `alt`. It cannot tell you the `alt` reads "image1". It does not catch an illogical tab order, a keyboard trap, a focus state you cannot see, a screen-reader
+announcement that makes no sense, or an error message sitting next to a field it was never associated with. Those need a keyboard and a screen reader.
+
+Rules also move between axe versions. axe-core 4.13 accepts `placeholder="Your email"` as an accessible name, so the `label` rule passes on an input that only has a placeholder, which is still poor
+practice. When a version bump changes the expected set, update the assertion to what axe now reports rather than loosening it.
+
 ## Third-party dependencies
 
 Tests must not depend on sites you do not control. Mock at the network boundary with `page.route`. See `tests/ui/network-mocking.spec.ts`.
