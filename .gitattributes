@@ -3,7 +3,7 @@
 # Git for Windows defaults to core.autocrlf=true, which checks text files out
 # as CRLF. Prettier is configured with `"endOfLine": "lf"`, so without this a
 # fresh Windows clone fails `npm run format:check` on every tracked text file
-# before the user has changed anything — and their first commit then has
+# before the user has changed anything, and their first commit then has
 # lint-staged rewrite each staged file to LF.
 * text=auto eol=lf
 

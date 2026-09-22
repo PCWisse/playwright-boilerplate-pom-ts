@@ -12,7 +12,7 @@ export type Severity = 'blocker' | 'critical' | 'normal' | 'minor' | 'trivial';
  * Allure metadata for a single test; every field is optional.
  *
  * `epic`, `feature` and `story` form the report's three-level grouping tree, so
- * they only pay off when a whole suite spells them consistently — agree the
+ * they only pay off when a whole suite spells them consistently. Agree the
  * vocabulary once, at the start of a project.
  */
 export interface Annotation {
@@ -53,7 +53,7 @@ export async function annotate(options: Annotation): Promise<void> {
     await allure.owner(options.owner);
   }
   if (options.issue !== undefined) {
-    // `allure.issue` takes (url, name) — in that order. Passing the ticket key
+    // `allure.issue` takes (url, name), in that order. Passing the ticket key
     // first produces a link whose href is the bare key and whose label is the
     // URL, which renders as a dead link in the report.
     await allure.issue(`${env.ticketBaseUrl}${options.issue}`, options.issue);
@@ -81,7 +81,7 @@ function redact(value: unknown): unknown {
 /**
  * Prepares a response body for attachment to a test result.
  *
- * Attachments are not private. `testInfo.attach` feeds every reporter at once —
+ * Attachments are not private. `testInfo.attach` feeds every reporter at once:
  * the built-in HTML report, the `blob` report that CI uploads as an artifact,
  * and Allure. So a raw body containing a bearer token would be published to
  * anyone who can read the pipeline's artifacts. Redact secret-looking keys
@@ -97,7 +97,7 @@ export function sanitiseBody(raw: string): string {
   try {
     text = JSON.stringify(redact(JSON.parse(raw)), null, 2);
   } catch {
-    // Not JSON — attach it verbatim, still capped. Redaction is key-based and
+    // Not JSON: attach it verbatim, still capped. Redaction is key-based and
     // cannot be applied safely to an unknown format.
   }
 

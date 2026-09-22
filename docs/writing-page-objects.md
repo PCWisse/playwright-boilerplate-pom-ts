@@ -36,7 +36,7 @@ export class LoginPage extends BasePage {
 }
 ```
 
-Locators are created in the constructor and are lazy — nothing touches the page
+Locators are created in the constructor and are lazy: nothing touches the page
 until an action or assertion runs, so constructing a page object is free.
 
 ## BasePage
@@ -71,10 +71,10 @@ elsewhere on the page.
 There are two shapes in the tree, and they are not interchangeable:
 
 ```typescript
-// Root passed in by the caller — reusable wherever the markup appears.
+// Root passed in by the caller, reusable wherever the markup appears.
 this.table = new TableComponent(page, page.getByRole('main'));
 
-// Root owned by the component — there is exactly one main nav.
+// Root owned by the component, which has exactly one main nav.
 this.nav = new NavComponent(page);
 ```
 
@@ -85,15 +85,16 @@ singleton; use the injected-root shape when it is not.
 `TableComponent` is the model for a reusable component: it is built entirely on
 role locators (`table`, `columnheader`, `row`, `cell`), so it works with any
 semantic table regardless of styling or class names. It exposes `root` (what was
-passed in) and `element` (the `<table>` inside it) — use `element` when you need
+passed in) and `element` (the `<table>` inside it). Use `element` when you need
 to scope a screenshot or a whole-component assertion to the table itself.
 
 ## Wrap multi-action methods in `test.step`
 
 A step gives the report a readable tree and points a failure at the action
-instead of a bare locator. Wrap anything that performs more than one action —
-`LoginPage.login`, `FormPage.createItem`, `TableComponent.columnValues` — and
-leave single-action methods like `InventoryPage.search` alone.
+instead of a bare locator. Wrap anything that performs more than one action, such
+as `LoginPage.login`, `FormPage.createItem` and
+`TableComponent.columnValues`, and leave single-action methods like
+`InventoryPage.search` alone.
 
 Note that `columnValues` is **not** declared `async`: its body is a single
 `return test.step(...)`, and marking it `async` trips `require-await` under
@@ -105,7 +106,7 @@ Note that `columnValues` is **not** declared `async`: its body is a single
 2. Add it to `PomFixtures` and `pomTest` in `src/fixtures/pom.fixture.ts`.
 3. It is now available as a fixture in every spec: `async ({ myPage }) => {}`.
 
-Fixtures are lazy — adding one costs nothing to tests that do not name it.
+Fixtures are lazy: adding one costs nothing to tests that do not name it.
 
 ## Path aliases
 

@@ -22,7 +22,7 @@ test.describe('Inventory visuals', () => {
       // Caveat worth knowing before you copy this: a mask rectangle is the
       // element's bounding box, and this span is text-sized. The name resolves
       // from TEST_USERNAME, so changing that env var changes the box width and
-      // invalidates the baseline — and a developer whose .env differs from
+      // invalidates the baseline, and a developer whose .env differs from
       // CI's will disagree with CI on the same commit. Pin TEST_USERNAME, or
       // mask a fixed-size container instead.
       mask: [inventoryPage.nav.currentUser],

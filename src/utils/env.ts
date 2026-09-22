@@ -19,7 +19,7 @@ if (!parsed.success) {
 
 /**
  * Validated, typed configuration, parsed once when this module is first
- * imported — which `playwright.config.ts` does. A missing or malformed variable
+ * imported, which `playwright.config.ts` does. A missing or malformed variable
  * therefore throws while the config is loading, before any test runs, instead
  * of reappearing as a baffling failure in the middle of a suite.
  *
@@ -35,7 +35,7 @@ export const env = {
   // path segment instead of treating it as a directory. `API_URL` normally
   // ends in `/api`, so an un-normalised base would silently turn
   // `new URL('items', 'http://host/api')` into `http://host/items`, dropping
-  // `/api` and 404ing. Normalising here — once, at the source — means every
+  // `/api` and 404ing. Normalising here, once, at the source, means every
   // consumer (the `api` Playwright project, `api.fixture.ts`, anything a
   // template user copies) gets a safe value for free. Do not remove this.
   apiURL: parsed.data.API_URL.endsWith('/') ? parsed.data.API_URL : `${parsed.data.API_URL}/`,

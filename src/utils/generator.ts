@@ -24,7 +24,7 @@ export function randomPrice(): number {
 
 /**
  * A positive integer. The API rejects fractional and negative quantities, so
- * this can never produce a payload that is invalid by accident — use a literal
+ * this can never produce a payload that is invalid by accident. Use a literal
  * when you want one that is invalid on purpose.
  */
 export function randomQuantity(): number {
@@ -43,7 +43,7 @@ export function randomEmail(): string {
 }
 
 /**
- * A syntactically valid IBAN — the check digits are correct, so client-side
+ * A syntactically valid IBAN: the check digits are correct, so client-side
  * validation accepts it, while the account itself does not exist. Unused by the
  * bundled specs; kept as the pattern for payment fields.
  */

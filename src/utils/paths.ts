@@ -6,7 +6,7 @@ import { join } from 'node:path';
  * declaring `dependencies: ['setup']`, so no UI spec ever signs in itself.
  *
  * The demo app keeps its token in localStorage rather than in a cookie, and
- * `storageState()` captures localStorage origins too — which is what makes this
+ * `storageState()` captures localStorage origins too, which is what makes this
  * shortcut work at all. The directory is gitignored: it holds a live session.
  *
  * Built from `process.cwd()` for the same reason as demo-app/server.ts: this

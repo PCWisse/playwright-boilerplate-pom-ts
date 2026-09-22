@@ -18,7 +18,7 @@ export interface PollOptions {
  * Polls an async predicate until it returns true.
  *
  * Prefer a web-first assertion (`await expect(locator).toBeVisible()`) whenever
- * one exists — Playwright retries those automatically. Use this only for
+ * one exists. Playwright retries those automatically. Use this only for
  * conditions that are not expressible as a locator assertion, such as waiting
  * on external state.
  */

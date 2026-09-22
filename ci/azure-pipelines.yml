@@ -151,7 +151,7 @@ stages:
           # WARNING: a Playwright report embeds the traces, videos and
           # screenshots of failed runs. Traces carry request/response bodies and
           # the storageState used to authenticate, neither of which is redacted.
-          # Pipeline artifacts inherit the project's visibility — in a public
+          # Pipeline artifacts inherit the project's visibility: in a public
           # project anyone can download this. Drop the trace/video artifacts
           # before publishing if your tests touch anything real. See docs/ci.md.
           - task: PublishPipelineArtifact@1

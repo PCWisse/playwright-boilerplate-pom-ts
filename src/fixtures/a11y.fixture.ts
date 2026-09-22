@@ -30,7 +30,7 @@ export interface A11yResult {
 }
 
 /**
- * `checkA11y` reports rather than asserts — it never fails a test by itself.
+ * `checkA11y` reports rather than asserts: it never fails a test by itself.
  * Each spec therefore sets its own policy: zero violations on a new page, or a
  * named allow-list while a legacy page is brought up to standard.
  */
@@ -41,7 +41,7 @@ export interface A11yFixtures {
 const DEFAULT_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 /**
- * Merged into the shared `test` in `src/fixtures/index.ts` — specs import that,
+ * Merged into the shared `test` in `src/fixtures/index.ts`. Specs import that,
  * not this.
  *
  * Every scan attaches `axe-violations.json` to the test result, so a CI failure
@@ -55,7 +55,7 @@ export const a11yTest = base.extend<A11yFixtures>({
   checkA11y: async ({ page }, use, testInfo) => {
     await use(async (options: A11yCheckOptions = {}): Promise<A11yResult> => {
       // An empty `tags` array would make axe run NO rules and return no
-      // violations — a silent pass that looks identical to a clean page.
+      // violations, a silent pass that looks identical to a clean page.
       // Treat it as "unset" so the scan can never become vacuous.
       const tags = options.tags !== undefined && options.tags.length > 0 ? options.tags : DEFAULT_TAGS;
 

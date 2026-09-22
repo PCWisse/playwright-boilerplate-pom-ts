@@ -11,7 +11,7 @@ export type ItemFormField = 'name' | 'price' | 'quantity';
 
 /**
  * Strings, not numbers: these values are typed into `<input>` elements
- * verbatim. That is deliberate — it lets a spec submit '-1', '1.5' or 'abc' to
+ * verbatim. That is deliberate: it lets a spec submit '-1', '1.5' or 'abc' to
  * exercise validation, which a numeric type would make unrepresentable.
  */
 export interface ItemFormInput {

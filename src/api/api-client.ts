@@ -44,7 +44,7 @@ export class ApiClient {
     const raw = await response.text();
 
     // Best-effort: `test.info()` throws whenever no test is running, and this
-    // class is reachable from places where that is true — a `globalSetup`, a
+    // class is reachable from places where that is true: a `globalSetup`, a
     // worker-fixture teardown, or any plain script that constructs an
     // `ApiClient`. (Worker-fixture *setup*, such as `authToken` in
     // `src/fixtures/api.fixture.ts`, does run inside the first test that asks

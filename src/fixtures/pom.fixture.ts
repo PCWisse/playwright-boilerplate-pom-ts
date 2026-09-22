@@ -21,7 +21,7 @@ export interface PomFixtures {
  * Hands specs ready-made page objects so no test body calls `new`.
  *
  * Each is built on the test's own `page`, which carries the project's
- * `storageState` — so in the projects that declare `dependencies: ['setup']`,
+ * `storageState`, so in the projects that declare `dependencies: ['setup']`,
  * `inventoryPage` and `formPage` are already past the login guard.
  */
 export const pomTest = base.extend<PomFixtures>({

@@ -1,4 +1,4 @@
-# Playwright Boilerplate — POM + TypeScript
+# Playwright Boilerplate: POM + TypeScript
 
 An opinionated, ready-to-use Playwright template: page objects, composable
 fixtures, UI/API/accessibility/visual examples, dual reporting and CI pipelines
@@ -38,14 +38,14 @@ failures.
 ```
 src/                 page objects, components, fixtures, API client, helpers
 tests/               specs: ui/, api/, a11y/, visual/
-demo-app/            the bundled app the examples run against — delete this first
+demo-app/            the bundled app the examples run against (delete this first)
 docs/                the guides linked below
 ci/                  GitLab, Azure and Jenkins pipelines
 .github/workflows/   GitHub Actions (must live here; GitHub does not look elsewhere)
 docker/              Dockerfile and compose file
 ```
 
-GitLab needs one setting to find its file outside the root — see
+GitLab needs one setting to find its file outside the root. See
 [docs/ci.md](docs/ci.md). Azure and Jenkins take the path when you create the
 pipeline, so they need nothing extra.
 
@@ -76,7 +76,7 @@ pipeline, so they need nothing extra.
 
 ## Documentation
 
-- [How it works](docs/how-it-works.md) — start here if you are new to Playwright
+- [How it works](docs/how-it-works.md): start here if you are new to Playwright
 - [Getting started](docs/getting-started.md)
 - [Conventions](docs/conventions.md)
 - [Writing page objects](docs/writing-page-objects.md)

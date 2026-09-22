@@ -22,7 +22,7 @@ All four share the same shape: a static-analysis job (`npm run lint`,
 `npm run typecheck`, `npm run format:check`), a four-way sharded test matrix
 running `npm run test:ci`, then a report job that merges the shards.
 
-PR runs execute `npm run test:ci` — chromium, api, a11y and visual. The nightly
+PR runs execute `npm run test:ci`: chromium, api, a11y and visual. The nightly
 GitHub workflow runs the full suite (`npx playwright test`), which adds firefox,
 webkit and mobile-chrome.
 
@@ -62,7 +62,7 @@ tests/visual/__screenshots__/visual/linux/
 ```
 
 The Linux set was generated **inside that image**. Running the same tests on a
-bare `ubuntu-24.04` runner — the same Ubuntu version — fails every visual test
+bare `ubuntu-24.04` runner, the same Ubuntu version, fails every visual test
 with no code change, because screenshots depend on the **font set**, not the OS
 version. Inside the image `fc-match system-ui` resolves to WenQuanYi Zen Hei
 and DejaVu is absent; the GitHub-hosted runner image has a different set. The
@@ -89,8 +89,8 @@ Then commit the PNGs under `tests/visual/__screenshots__/visual/linux/`.
 Use `--update-snapshots=all`, not the bare `npm run test:update-snapshots`.
 Bare `--update-snapshots` in Playwright 1.62 uses the `changed` preset, which
 **never rewrites a snapshot that already matches within
-`maxDiffPixelRatio: 0.01`** — precisely the case after a version bump where
-rendering drifted slightly but not past the threshold. You would see a green run
+`maxDiffPixelRatio: 0.01`**. That is precisely the case after a version bump
+where rendering drifted slightly but not past the threshold. You would see a green run
 and conclude nothing needed regenerating, while the drift accumulates until it
 crosses the threshold on some unrelated PR.
 
@@ -100,7 +100,7 @@ land on your host ready to commit.
 ## Bumping @playwright/test
 
 The image tag is written as literal text in YAML and Dockerfiles. **No
-Dependabot ecosystem can bump it** — `.github/dependabot.yml` covers the `npm`
+Dependabot ecosystem can bump it**: `.github/dependabot.yml` covers the `npm`
 and `github-actions` ecosystems, and a container tag inside a `container:` block
 is neither. Bumping the package without bumping the tag gives you
 "browser not found" at runtime; bumping it without regenerating baselines gives
@@ -108,12 +108,12 @@ you three failing visual tests.
 
 Checklist. Nine occurrences across seven files:
 
-- [ ] `package.json` — `@playwright/test`
+- [ ] `package.json`: `@playwright/test`
 - [ ] `.github/workflows/playwright.yml` (line 50)
 - [ ] `.github/workflows/nightly.yml` (line 24)
 - [ ] `ci/.gitlab-ci.yml` (line 28)
 - [ ] `ci/azure-pipelines.yml` (line 59)
-- [ ] `ci/Jenkinsfile` — **three** occurrences (lines 46, 67 and 107)
+- [ ] `ci/Jenkinsfile`: **three** occurrences (lines 46, 67 and 107)
 - [ ] `docker/Dockerfile` (line 5)
 - [ ] `.devcontainer/devcontainer.json` (line 3)
 - [ ] Regenerate the Linux visual baselines (above) and commit them
@@ -138,7 +138,7 @@ npx allure generate allure-results --clean --output allure-report
 The built-in HTML report is the default and needs no toolchain. Allure adds
 severity, epic/feature/story grouping, ticket links and trend graphs across
 runs. On GitHub, the report job checks out `gh-pages` and copies
-`allure/history` back into `allure-results/` before generating — that restore
+`allure/history` back into `allure-results/` before generating. That restore
 step is the whole mechanism behind the trend graphs. Jenkins gets history for
 free because the Allure plugin runs `allure generate` itself and keeps history
 across builds. GitLab and Azure have neither, so their trend graphs stay empty
@@ -176,8 +176,8 @@ Consequences:
   (the built-in HTML report) works fine there.
 - `docker/Dockerfile` does install `default-jre-headless`, so the compose service
   can generate Allure.
-- The nightly workflow has no Java step and never generates an Allure report —
-  it produces blob reports and the merged HTML report only.
+- The nightly workflow has no Java step and never generates an Allure report: it
+  produces blob reports and the merged HTML report only.
 
 Java lives only in the report job by design: a JDK problem can never block the
 tests or the built-in report.
@@ -188,7 +188,7 @@ Read this before enabling GitHub Pages or GitLab Pages.
 
 A Playwright HTML report embeds **traces, videos and screenshots** from failed
 runs. A trace carries request and response bodies and the `storageState` used to
-authenticate — unredacted.
+authenticate, none of it redacted.
 
 `sanitiseBody` (`src/utils/reporting.ts`) redacts secret-looking keys, but it
 covers **only the API attachment path** in `src/api/api-client.ts`. It does not
@@ -201,7 +201,7 @@ your tests authenticate against anything real:
 - publish from a private repository, **or**
 - drop the trace and video artifacts before publishing (`trace: 'off'` in CI, or
   delete `data/` from `playwright-report/` in the assemble step), **or**
-- do not publish at all — the `merged-reports` artifact is already uploaded and
+- do not publish at all: the `merged-reports` artifact is already uploaded and
   is access-controlled by the repository's permissions.
 
 The publish step in `.github/workflows/playwright.yml` carries this warning
@@ -211,10 +211,10 @@ inline and is gated on `github.ref == 'refs/heads/main'`.
 
 Two things are not automatic on a fresh repository:
 
-1. **Pages must be enabled by hand** — Settings → Pages → Source: "Deploy from a
+1. **Pages must be enabled by hand.** Settings → Pages → Source: "Deploy from a
    branch", branch `gh-pages`. Nothing in the workflow can turn it on.
 2. **The `gh-pages` branch does not exist on the first run.** That is why the
-   "Check out the published site" step is `continue-on-error: true` — it is
+   "Check out the published site" step is `continue-on-error: true`. It is
    expected to fail once. The Allure history restore is conditioned on that
    step's outcome, so the first run simply has no history and the second onwards
    do.
@@ -226,14 +226,15 @@ Two things are not automatic on a fresh repository:
 therefore passes vacuously on them: the workflow YAML and the markdown prettier
 would otherwise check are simply not there.
 
-This is a deliberate trade — re-including them would bust the `COPY . .` layer
-on every documentation edit — and it is documented in `.dockerignore` itself.
+This is a deliberate trade (re-including them would bust the `COPY . .` layer on
+every documentation edit) and it is documented in `.dockerignore` itself.
 Treat the container as a place to run **tests**, and run `format:check` on the
 host or in CI, where the whole tree is present.
 
 `npm run lint` is unaffected, for a duller reason: ESLint never looked at those
 files anywhere. `eslint.config.mjs` matches `.ts`, `.js`, `.cjs` and `.mjs`, and
-there are no such files under `.github` or `docs` — on the host or in the image.
+there are no such files under `.github` or `docs`, either on the host or in the
+image.
 Their lint coverage is zero either way, so nothing is lost in the container that
 you had outside it.
 

@@ -22,7 +22,7 @@ OneDrive path) also works.
 
 ## Node version
 
-`package.json` declares `engines.node` as `^20.19.0 || ^22.13.0 || >=24` — the
+`package.json` declares `engines.node` as `^20.19.0 || ^22.13.0 || >=24`. The
 floor is set by ESLint 10, not by Playwright. `.npmrc` sets
 `engine-strict=true`, so `npm ci` **hard-fails** with `EBADENGINE` outside that
 range instead of installing something that cannot run. Check with `node -v`
@@ -50,8 +50,8 @@ in `playwright.config.ts`, so nothing else needs to be running.
 
 ### If the run dies in browser startup
 
-On a memory-constrained machine — Docker Desktop with a small VM, or WSL capped
-by a `memory=` line in `~/.wslconfig` — the full suite can fail before any test
+On a memory-constrained machine (Docker Desktop with a small VM, or WSL capped
+by a `memory=` line in `~/.wslconfig`) the full suite can fail before any test
 code runs, with an error like:
 
 ```
@@ -91,7 +91,7 @@ Download the `merged-reports` artifact, open `index.html`, and click into the
 trace for the failed test.
 
 `trace` is `'on-first-retry'` and `retries` is `2` on CI, `0` locally. So every
-CI failure has a trace and a **local** failure does not — locally, re-run with
+CI failure has a trace and a **local** failure does not. Locally, re-run with
 `--trace on` or use UI mode instead of hunting for a trace that was never
 recorded.
 
@@ -116,7 +116,7 @@ values belong in your CI secret store.
 
 `env.apiURL` is normalised to always end in `/`. Playwright's
 `APIRequestContext` resolves a relative request path with `new URL(path, base)`,
-and a base **without** a trailing slash drops its last segment — so
+and a base **without** a trailing slash drops its last segment, so
 `new URL('items', 'http://host/api')` would become `http://host/items` and 404.
 Because the normalisation happens once in `src/utils/env.ts`, request paths in
 `src/api/api-client.ts` are relative and slash-free (`'items'`, not `'/items'`).

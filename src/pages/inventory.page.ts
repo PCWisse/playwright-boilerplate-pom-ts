@@ -7,8 +7,8 @@ import { BasePage } from './base.page';
 /**
  * Models `inventory.html`, the landing page after a successful sign-in.
  *
- * It is behind auth — the page reads its token from localStorage and redirects
- * to the login page when there is none — so specs must run in a project that
+ * It is behind auth: the page reads its token from localStorage and redirects
+ * to the login page when there is none, so specs must run in a project that
  * supplies `storageState` (see `dependencies: ['setup']` in
  * `playwright.config.ts`).
  *

@@ -33,7 +33,7 @@ export const loginResponseSchema = z.object({
 
 /**
  * The 4xx error envelope. Unlike the schemas above, this one never reaches
- * `ApiClient.unwrap` — `unwrap` throws on an unexpected status before it parses
+ * `ApiClient.unwrap`, which throws on an unexpected status before it parses
  * anything. Negative-path specs apply it themselves to the raw `APIResponse`
  * returned by `ApiClient.createItemRaw`; see `tests/api/validation.spec.ts`.
  */
@@ -54,7 +54,7 @@ export type LoginResponse = z.infer<typeof loginResponseSchema>;
  * The request body for creating or updating an item.
  *
  * Hand-written on purpose, not inferred: the client never sends `id` or
- * `createdAt` — the server assigns both — so deriving this from `itemSchema`
+ * `createdAt` (the server assigns both), so deriving this from `itemSchema`
  * would demand two fields a caller cannot supply.
  */
 export interface ItemInput {

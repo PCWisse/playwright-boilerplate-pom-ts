@@ -9,7 +9,7 @@ node_modules
 .env.*
 !.env.example
 
-# Test and report output — regenerated inside the container anyway.
+# Test and report output, regenerated inside the container anyway.
 test-results/
 playwright-report/
 blob-report/

@@ -6,7 +6,7 @@ test.describe('Accessibility', () => {
     // The `a11y` project deliberately runs standalone: no `storageState` and
     // no dependency on the `setup` project, so the browser starts logged out
     // and `/inventory.html` redirects straight back to the login page. Log in
-    // inline instead — do not delete this in favour of `inventoryPage.goto()`,
+    // inline instead, and do not delete this in favour of `inventoryPage.goto()`,
     // or the scan silently measures the login page.
     await loginPage.goto();
     await loginPage.login(STANDARD_USER.username, STANDARD_USER.password);
@@ -24,7 +24,7 @@ test.describe('Accessibility', () => {
 
   test('the playground page reports its known violations', { tag: ['@a11y'] }, async ({ a11yPage, checkA11y }) => {
     // demo-app/public/a11y.html contains deliberate violations. Asserting the
-    // exact set proves the scan actually runs — a scan that silently returns
+    // exact set proves the scan actually runs: a scan that silently returns
     // nothing would otherwise look like a pass.
     //
     // The page also carries an input with only a `placeholder`. axe-core
@@ -60,7 +60,7 @@ test.describe('Accessibility', () => {
       // Real-world pattern: exclude markup you do not control, and disable a
       // rule only with a written reason.
       //
-      // `exclude` drops a subtree — use it for a third-party widget or an
+      // `exclude` drops a subtree. Use it for a third-party widget or an
       // embed you cannot change. `disableRules` switches a rule off
       // everywhere; here the low-contrast paragraph is treated as a known,
       // accepted design decision.

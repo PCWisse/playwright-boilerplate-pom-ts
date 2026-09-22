@@ -43,7 +43,7 @@ export const apiTest = base.extend<ApiTestFixtures, ApiWorkerFixtures>({
   authToken: [
     // Playwright inspects this function's source and REQUIRES the first
     // argument to be an object destructuring pattern, even when the fixture
-    // needs nothing from it — `async (_fixtures, use)` fails at runtime with
+    // needs nothing from it: `async (_fixtures, use)` fails at runtime with
     // "First argument must use the object destructuring pattern". So the empty
     // pattern is mandatory here and the lint rule has to yield, not the code.
     // eslint-disable-next-line no-empty-pattern

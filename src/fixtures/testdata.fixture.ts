@@ -16,7 +16,7 @@ export interface TestDataFixtures {
  * Extends `apiTest`, so asking for `seededItem` also pulls in `api` and the
  * worker-scoped `authToken`.
  *
- * Teardown deletes the item and tolerates exactly one failure — a 404, meaning
+ * Teardown deletes the item and tolerates exactly one failure: a 404, meaning
  * the test already removed it. Everything else is re-thrown, so broken cleanup
  * can never be mistaken for a clean run.
  */

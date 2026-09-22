@@ -2,8 +2,8 @@ import { env } from '../utils/env';
 
 /**
  * The shape every fixture account here shares. Extend it in one place when your
- * application needs more than a username and password — a tenant id, an MFA
- * seed — and every user below is updated with it.
+ * application needs more than a username and password, such as a tenant id or
+ * an MFA seed, and every user below is updated with it.
  */
 export interface Credentials {
   username: string;
@@ -22,7 +22,7 @@ export const STANDARD_USER: Credentials = {
 
 /**
  * Hard-coded rubbish, deliberately: it exists to exercise the failure path
- * (`tests/ui/login.spec.ts`). Never point it at the environment — the whole
+ * (`tests/ui/login.spec.ts`). Never point it at the environment. The whole
  * value of this constant is that the credentials are guaranteed not to work.
  */
 export const INVALID_USER: Credentials = {
