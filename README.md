@@ -49,14 +49,14 @@ GitLab needs one setting to find its file outside the root. See [docs/ci.md](doc
 | ------------------------------- | ----------------------------------------------------- |
 | `npm test`                      | Run every project                                     |
 | `npm run test:ci`               | Chromium + api + a11y + visual (what CI runs on a PR) |
-| `npm run test:smoke`            | Only `@smoke` tests                                   |
-| `npm run test:regression`       | Only `@regression` tests                              |
+| `npm run test:smoke`            | Only`@smoke` tests                                    |
+| `npm run test:regression`       | Only`@regression` tests                               |
 | `npm run test:ui`               | Playwright UI mode with time-travel debugging         |
 | `npm run test:debug`            | Step through with the Playwright inspector            |
 | `npm run test:headed`           | Run with a visible browser window                     |
-| `npm run test:api`              | Only the `api` project                                |
-| `npm run test:a11y`             | Only the `a11y` project                               |
-| `npm run test:visual`           | Only the `visual` project                             |
+| `npm run test:api`              | Only the`api` project                                 |
+| `npm run test:a11y`             | Only the`a11y` project                                |
+| `npm run test:visual`           | Only the`visual` project                              |
 | `npm run test:update-snapshots` | Refresh changed visual baselines                      |
 | `npm run codegen`               | Record a test and generate locators                   |
 | `npm run report`                | Open the built-in HTML report                         |

@@ -17,6 +17,47 @@ git config --global core.longpaths true
 
 Cloning into a shallower directory (`C:\src\...` rather than a nested OneDrive path) also works.
 
+### What that setting actually does
+
+Windows APIs historically capped a path at 260 characters (`MAX_PATH`). `core.longpaths` tells Git to use the Win32 extended-length APIs instead, which lifts the cap to about 32,767 characters, so Git
+can create these files.
+
+Three things worth knowing:
+
+- It is a **Git** setting. It changes what Git can write, not what every other program can read. Some older tools, and File Explorer in places, still stop at 260.
+- Windows 10 1607 and later has a separate system-wide switch (`LongPathsEnabled`, via Group Policy or the registry). The two are independent; setting Git's is enough for cloning this repository.
+- `--global` writes to your user config, not the repository, which is deliberate: the failure happens _during_ the clone, so a repository-level setting would arrive too late to help.
+
+Check whether you already have it:
+
+```bash
+git config --global --get core.longpaths
+```
+
+No output means it is unset.
+
+## Optional: installing the prerequisites with Scoop
+
+On Windows, [Scoop](https://scoop.sh) installs everything this template needs without an installer or admin rights. Skip this section if you already have Node, or if your machine is managed and you
+install software another way.
+
+```powershell
+# Node. `nodejs-lts` is currently 24.x, which satisfies the engines range below.
+scoop install nodejs-lts
+
+# Optional: the GitHub CLI, for `gh pr create` and friends.
+scoop install gh
+
+# Optional: a JDK, needed only to render the Allure report locally.
+scoop bucket add java
+scoop install temurin17-jdk
+```
+
+The JDK is worth calling out: `npm run report:allure` shells out to `allure`, which is a Java program. Without a JVM it fails, and nothing else in the suite is affected. CI provisions its own JDK in
+the report job, so this is a local-convenience install only.
+
+Playwright's browsers are **not** a Scoop package. Install them with `npx playwright install --with-deps` after `npm ci`, as below.
+
 ## Node version
 
 `package.json` declares `engines.node` as `^20.19.0 || ^22.13.0 || >=24`. The floor is set by ESLint 10, not by Playwright. `.npmrc` sets `engine-strict=true`, so `npm ci` **hard-fails** with
