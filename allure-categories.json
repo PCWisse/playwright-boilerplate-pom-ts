@@ -1,9 +1,5 @@
 [
   {
-    "name": "Product defects",
-    "matchedStatuses": ["failed"]
-  },
-  {
     "name": "Broken environment",
     "matchedStatuses": ["broken"],
     "messageRegex": ".*(ECONNREFUSED|ENOTFOUND|net::ERR_CONNECTION|Timeout .* exceeded while waiting for the server).*"
@@ -27,5 +23,9 @@
     "name": "Flaky",
     "matchedStatuses": ["passed"],
     "flaky": true
+  },
+  {
+    "name": "Product defects (uncategorised)",
+    "matchedStatuses": ["failed"]
   }
 ]

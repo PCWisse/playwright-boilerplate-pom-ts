@@ -177,6 +177,19 @@ or `docs`, either on the host or in the image. Their lint coverage is zero eithe
 `.devcontainer` and `docker compose run` use bind mounts, and `.dockerignore` governs the build context only, so the full tree **is** visible there. The vacuous-pass problem applies to `docker build`
 / `docker compose build` images.
 
+## Category order matters
+
+`allure-categories.json` is evaluated **in order, and the first match wins**. A result lands in exactly one category.
+
+That makes a catch-all dangerous. "Product defects (uncategorised)" has `matchedStatuses: ["failed"]` and no `messageRegex`, so it matches every failure. It is deliberately **last**: put it first and
+it swallows everything, and the specific categories above it can never fire, while still looking correct in the file.
+
+Verified by running `allure generate` against two deliberately failed tests: with the catch-all first, the widget reported only "Product defects"; with it last, the same two failures landed in "API
+contract drift". Add new specific categories above it.
+
+A related myth worth putting to rest: the regexes do **not** need `(?s)` or `Pattern.DOTALL`. A message whose matched phrase is followed by a newline (`... does not match its schema:   price: ...`,
+which is what `ApiClient.unwrap` throws) matched `.*does not match its schema.*` without any flag.
+
 ## Removing Allure
 
 Three edits:
