@@ -56,6 +56,29 @@ export default tseslint.config(
           selector: "CallExpression[callee.property.name='waitForTimeout']",
           message: 'waitForTimeout is banned. Use a web-first assertion or a locator wait instead.',
         },
+        {
+          // Element handles are a snapshot of a node. A locator is a description
+          // re-resolved on every use, which is what makes auto-waiting and
+          // retrying work. A handle silently goes stale when the page re-renders.
+          selector: "CallExpression[callee.property.name='$']",
+          message: 'Element handles are banned. Use a Locator (page.getByRole, page.locator) so the element is re-resolved on every action.',
+        },
+        {
+          selector: "CallExpression[callee.property.name='$$']",
+          message: 'Element handles are banned. Use a Locator (page.getByRole, page.locator) so the element is re-resolved on every action.',
+        },
+        {
+          selector: "CallExpression[callee.property.name='elementHandle']",
+          message: 'Element handles are banned. Use a Locator instead.',
+        },
+        {
+          selector: "CallExpression[callee.property.name='elementHandles']",
+          message: 'Element handles are banned. Use a Locator instead.',
+        },
+        {
+          selector: "CallExpression[callee.property.name='waitForSelector']",
+          message: 'waitForSelector is banned. Assert on a locator instead: await expect(locator).toBeVisible().',
+        },
       ],
     },
   },

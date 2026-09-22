@@ -1,5 +1,29 @@
 # Conventions
 
+## Test user-visible behaviour
+
+A test should assert what a user can observe: text on screen, a URL, an enabled button, a request the app made. It should not assert private state, a CSS class name, or the shape of a component's
+internals. Those change when someone refactors, and a test that fails on a refactor which broke nothing trains people to ignore failures.
+
+The practical test: if the rewrite changed no behaviour a user could notice, your test should still pass.
+
+## No conditional logic in a test
+
+No `if`, no `try/catch` around an assertion, no loop that might run zero times. A branch means the test asserts different things on different runs, and the run where it asserted nothing still reports
+green.
+
+```typescript
+// no: silently passes when the banner never appears
+if (await banner.isVisible()) {
+  await expect(banner).toHaveText('Saved');
+}
+
+// yes: states what must happen
+await expect(banner).toHaveText('Saved');
+```
+
+If two cases genuinely need different assertions, write two tests. This is the same failure mode as [Make sure the assertion can fail](#make-sure-the-assertion-can-fail), reached by a different route.
+
 ## Files and names
 
 - Kebab-case filenames with a role suffix: `.page.ts`, `.component.ts`, `.fixture.ts`, `.setup.ts`, `.spec.ts`.
@@ -42,6 +66,18 @@ returned and which rendered zero rows.
 
 When you add a precondition check, prove it fails when the precondition is unmet: stall the request with `page.route` and confirm the test goes red.
 
+## A forgotten `await` is a lint error, not a silent pass
+
+The most common Playwright bug is a missing `await`: the assertion returns a promise nobody waits for, so it never runs and the test passes. Two rules catch it, and both are errors:
+
+```
+'toBeVisible' must be awaited or returned                 playwright/missing-playwright-await
+Promises must be awaited ... or explicitly marked with void   @typescript-eslint/no-floating-promises
+```
+
+`no-floating-promises` is enabled explicitly in `eslint.config.mjs` and needs type information, which is why the ESLint config is type-aware rather than syntax-only. You do not need to hand-audit for
+missing awaits; `npm run lint` does it.
+
 ## Waiting
 
 Never `waitForTimeout`. It is a lint error in two places:
@@ -53,6 +89,13 @@ Playwright already waits for actionability before every action and retries every
 
 `src/utils/wait.ts` exports `pollUntil` as an escape hatch for conditions no locator assertion can express: external state, a queue draining. Nothing in the shipped examples uses it, deliberately.
 Reach for it last, not first.
+
+### Locators, never element handles
+
+`page.$`, `page.$$`, `elementHandle()` and `waitForSelector` are banned in `src/**/*.ts` by `no-restricted-syntax`, alongside `waitForTimeout`.
+
+A handle is a snapshot of one node at one moment. A locator is a _description_ that Playwright re-resolves on every use, which is what makes auto-waiting and retrying work at all. When the page
+re-renders, a handle points at a detached node and fails in ways that look like flakiness.
 
 ## Isolation
 
@@ -66,6 +109,25 @@ The demo app has a **shared, mutable item store**, so a spec that asserts an exa
 
 Data a test genuinely needs to create goes through the `seededItem` fixture (`src/fixtures/testdata.fixture.ts`), which creates over the API and deletes in teardown, tolerating only a 404 (the test
 deleted it itself) and rethrowing everything else.
+
+## Timeouts
+
+Five are configured, and a failure message names the one that fired. Change the narrowest one that fixes your problem, not the global.
+
+| Setting                 | Value | Applies to                                       |
+| ----------------------- | ----- | ------------------------------------------------ |
+| `timeout`               | 60s   | One whole test, including fixtures               |
+| `expect.timeout`        | 10s   | One web-first assertion's retry window           |
+| `use.actionTimeout`     | 15s   | One action: click, fill, press                   |
+| `use.navigationTimeout` | 30s   | `goto` and navigations                           |
+| `webServer.timeout`     | 30s   | Waiting for the demo app to boot on a cold start |
+
+`toHaveScreenshot` has its own `maxDiffPixelRatio: 0.01`. See [CI and reporting](ci.md).
+
+Raising a timeout is almost never the fix for a flaky test. It is usually the wrong locator, a missing precondition gate, or a genuine performance regression worth knowing about. Retries are set to 2
+on CI and 0 locally, so a test that only passes on retry is visibly flaky rather than quietly green.
+
+`forbidOnly` is on in CI: a stray `test.only` fails the pipeline instead of silently reducing the suite to one test.
 
 ## Fixtures
 
