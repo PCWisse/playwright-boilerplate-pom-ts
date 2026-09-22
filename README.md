@@ -13,8 +13,8 @@ cp .env.example .env
 npm test
 ```
 
-Everything runs against the bundled demo app in `demo-app/`, so the suite is green on a fresh clone with no configuration. If any of those four commands fails,
-[getting started](docs/getting-started.md) covers the known first-run failures.
+`npm test` runs against the bundled demo app in `demo-app/`, so the suite is green on a fresh clone with no configuration and no network. The saucedemo.com examples are opt-in:
+`npm run test:saucedemo`, or `npm run test:all` for both. If any of those four commands fails, [getting started](docs/getting-started.md) covers the known first-run failures.
 
 ## What is in the box
 
@@ -47,7 +47,8 @@ GitLab needs one setting to find its file outside the root. See [docs/ci.md](doc
 
 | Command                         | What it does                                          |
 | ------------------------------- | ----------------------------------------------------- |
-| `npm test`                      | Run every project                                     |
+| `npm test`                      | Your own build: every project except `@external`      |
+| `npm run test:all`              | Both targets, including the live saucedemo.com        |
 | `npm run test:ci`               | Chromium + api + a11y + visual (what CI runs on a PR) |
 | `npm run test:smoke`            | Only`@smoke` tests                                    |
 | `npm run test:regression`       | Only`@regression` tests                               |
@@ -57,7 +58,7 @@ GitLab needs one setting to find its file outside the root. See [docs/ci.md](doc
 | `npm run test:api`              | Only the `api` project                                |
 | `npm run test:a11y`             | Only the `a11y` project                               |
 | `npm run test:visual`           | Only the `visual` project                             |
-| `npm run test:saucedemo`        | End-to-end examples against the public saucedemo.com  |
+| `npm run test:saucedemo`        | Only the live saucedemo.com examples                  |
 | `npm run test:update-snapshots` | Refresh changed visual baselines                      |
 | `npm run codegen`               | Record a test and generate locators                   |
 | `npm run report`                | Open the built-in HTML report                         |

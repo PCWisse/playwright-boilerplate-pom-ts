@@ -8,11 +8,12 @@
     "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --grep-invert @external",
+    "test:all": "playwright test",
     "test:ci": "playwright test --project=chromium --project=api --project=a11y --project=visual",
-    "test:smoke": "playwright test --grep @smoke",
-    "test:regression": "playwright test --grep @regression",
-    "test:ui": "playwright test --ui",
+    "test:smoke": "playwright test --grep @smoke --grep-invert @external",
+    "test:regression": "playwright test --grep @regression --grep-invert @external",
+    "test:ui": "playwright test --ui --grep-invert @external",
     "test:debug": "playwright test --debug",
     "test:headed": "playwright test --headed",
     "test:api": "playwright test --project=api",

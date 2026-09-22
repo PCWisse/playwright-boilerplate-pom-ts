@@ -197,7 +197,16 @@ It is fenced off so the rule above still holds everywhere it matters:
 - Tagged `@external`, and the nightly workflow runs `--grep-invert @external`.
 - Its own `test` object (`src/fixtures/saucedemo.fixture.ts`), not merged into `src/fixtures/index.ts`, so an internal spec cannot reach a third-party page object by accident.
 
-Run it deliberately: `npm run test:saucedemo`. If you fork this template for a real project, deleting `tests/external/`, `src/pages/saucedemo/` and the `saucedemo` project is a reasonable first move.
+Run either target, or both:
+
+| Command                  | Target                              |
+| ------------------------ | ----------------------------------- |
+| `npm test`               | Your own build only. Works offline. |
+| `npm run test:saucedemo` | The live site only.                 |
+| `npm run test:all`       | Both.                               |
+
+`test:smoke`, `test:regression` and `test:ui` also carry `--grep-invert @external`, so the everyday commands never reach the network. If you fork this template for a real project, deleting
+`tests/external/`, `src/pages/saucedemo/` and the `saucedemo` project is a reasonable first move.
 
 ## Never let a secret reach a report
 
