@@ -2,13 +2,7 @@ import { test, type APIRequestContext, type APIResponse } from '@playwright/test
 import type { ZodType } from 'zod';
 
 import { sanitiseBody } from '../utils/reporting';
-import {
-  itemListSchema,
-  itemSchema,
-  loginResponseSchema,
-  type Item,
-  type ItemInput,
-} from './schemas';
+import { itemListSchema, itemSchema, loginResponseSchema, type Item, type ItemInput } from './schemas';
 
 /**
  * Typed client over Playwright's APIRequestContext.
@@ -36,11 +30,7 @@ export class ApiClient {
     this.token = token;
   }
 
-  static async login(
-    request: APIRequestContext,
-    username: string,
-    password: string,
-  ): Promise<string> {
+  static async login(request: APIRequestContext, username: string, password: string): Promise<string> {
     const response = await request.post('login', { data: { username, password } });
     const body = await ApiClient.unwrap(response, loginResponseSchema, 'POST /login', 201);
     return body.token;
@@ -50,12 +40,7 @@ export class ApiClient {
     return { authorization: `Bearer ${this.token}` };
   }
 
-  private static async unwrap<T>(
-    response: APIResponse,
-    schema: ZodType<T>,
-    context: string,
-    expectedStatus: number,
-  ): Promise<T> {
+  private static async unwrap<T>(response: APIResponse, schema: ZodType<T>, context: string, expectedStatus: number): Promise<T> {
     const raw = await response.text();
 
     // Best-effort: `test.info()` throws whenever no test is running, and this
@@ -78,19 +63,12 @@ export class ApiClient {
     }
 
     if (response.status() !== expectedStatus) {
-      throw new Error(
-        `${context} expected HTTP ${String(expectedStatus)} but got ${String(response.status())}.\n` +
-          `URL: ${response.url()}\nBody: ${raw}`,
-      );
+      throw new Error(`${context} expected HTTP ${String(expectedStatus)} but got ${String(response.status())}.\n` + `URL: ${response.url()}\nBody: ${raw}`);
     }
     const parsed = schema.safeParse(JSON.parse(raw) as unknown);
     if (!parsed.success) {
-      const issues = parsed.error.issues
-        .map((issue) => `  ${issue.path.join('.') || '(root)'}: ${issue.message}`)
-        .join('\n');
-      throw new Error(
-        `${context} returned a body that does not match its schema:\n${issues}\nBody: ${raw}`,
-      );
+      const issues = parsed.error.issues.map((issue) => `  ${issue.path.join('.') || '(root)'}: ${issue.message}`).join('\n');
+      throw new Error(`${context} returned a body that does not match its schema:\n${issues}\nBody: ${raw}`);
     }
     return parsed.data;
   }
@@ -121,9 +99,7 @@ export class ApiClient {
   async deleteItem(id: string): Promise<void> {
     const response = await this.request.delete(`items/${id}`, { headers: this.headers });
     if (response.status() !== 204) {
-      throw new Error(
-        `DELETE /items/${id} expected HTTP 204 but got ${String(response.status())}: ${await response.text()}`,
-      );
+      throw new Error(`DELETE /items/${id} expected HTTP 204 but got ${String(response.status())}: ${await response.text()}`);
     }
   }
 

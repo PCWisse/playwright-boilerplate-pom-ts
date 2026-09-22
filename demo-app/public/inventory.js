@@ -26,8 +26,7 @@ function render() {
   emptyState.hidden = visible.length > 0;
 }
 
-document.querySelector('[data-testid="current-user"]').textContent =
-  localStorage.getItem('auth-user') ?? '';
+document.querySelector('[data-testid="current-user"]').textContent = localStorage.getItem('auth-user') ?? '';
 
 document.querySelector('[data-testid="logout"]').addEventListener('click', () => {
   localStorage.clear();

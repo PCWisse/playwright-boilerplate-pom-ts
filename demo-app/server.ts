@@ -65,20 +65,12 @@ async function serveStatic(pathname: string, response: ServerResponse): Promise<
   }
 }
 
-async function handleApi(
-  request: IncomingMessage,
-  response: ServerResponse,
-  pathname: string,
-  store: ItemStore,
-): Promise<void> {
+async function handleApi(request: IncomingMessage, response: ServerResponse, pathname: string, store: ItemStore): Promise<void> {
   const method = request.method ?? 'GET';
 
   if (pathname === '/api/login' && method === 'POST') {
     const body = (await readBody(request)) as { username?: string; password?: string } | null;
-    if (
-      body?.username === VALID_CREDENTIALS.username &&
-      body.password === VALID_CREDENTIALS.password
-    ) {
+    if (body?.username === VALID_CREDENTIALS.username && body.password === VALID_CREDENTIALS.password) {
       sendJson(response, 201, { token: TOKEN, username: body.username });
     } else {
       sendJson(response, 401, { error: 'Invalid username or password' });

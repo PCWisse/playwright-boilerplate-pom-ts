@@ -25,12 +25,8 @@ test.describe('Item form', () => {
     // Soft assertions collect all three failures instead of stopping at the
     // first one, so a single run tells you every field that is wrong.
     await expect.soft(formPage.fieldError('name')).toHaveText('Name is required');
-    await expect
-      .soft(formPage.fieldError('price'))
-      .toHaveText('Price must be a number of 0 or more');
-    await expect
-      .soft(formPage.fieldError('quantity'))
-      .toHaveText('Quantity must be a whole number of 0 or more');
+    await expect.soft(formPage.fieldError('price')).toHaveText('Price must be a number of 0 or more');
+    await expect.soft(formPage.fieldError('quantity')).toHaveText('Quantity must be a whole number of 0 or more');
     await expect(formPage.successMessage).toBeHidden();
   });
 });

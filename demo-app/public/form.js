@@ -2,8 +2,7 @@ const token = localStorage.getItem('auth-token');
 if (!token) {
   window.location.replace('/login.html');
 }
-document.querySelector('[data-testid="current-user"]').textContent =
-  localStorage.getItem('auth-user') ?? '';
+document.querySelector('[data-testid="current-user"]').textContent = localStorage.getItem('auth-user') ?? '';
 document.querySelector('[data-testid="logout"]').addEventListener('click', () => {
   localStorage.clear();
   window.location.assign('/login.html');

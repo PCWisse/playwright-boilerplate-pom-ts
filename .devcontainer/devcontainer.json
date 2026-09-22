@@ -4,17 +4,11 @@
   "runArgs": ["--ipc=host"],
   "workspaceFolder": "/workspaces/playwright-template",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/playwright-template,type=bind",
-  "mounts": [
-    "source=playwright-template-node-modules,target=/workspaces/playwright-template/node_modules,type=volume"
-  ],
+  "mounts": ["source=playwright-template-node-modules,target=/workspaces/playwright-template/node_modules,type=volume"],
   "postCreateCommand": "sudo chown -R $(id -u):$(id -g) node_modules && npm ci",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "ms-playwright.playwright",
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
-      ],
+      "extensions": ["ms-playwright.playwright", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",

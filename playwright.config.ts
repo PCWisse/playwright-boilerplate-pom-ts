@@ -35,11 +35,8 @@ export default defineConfig({
     timeout: 10_000,
     toHaveScreenshot: { maxDiffPixelRatio: 0.01 },
   },
-  reporter: isCI
-    ? [['github'], ['blob'], ['allure-playwright', allureOptions]]
-    : [['list'], ['html', { open: 'never' }], ['allure-playwright', allureOptions]],
-  snapshotPathTemplate:
-    '{testDir}/__screenshots__/{projectName}/{platform}/{testFilePath}/{arg}{ext}',
+  reporter: isCI ? [['github'], ['blob'], ['allure-playwright', allureOptions]] : [['list'], ['html', { open: 'never' }], ['allure-playwright', allureOptions]],
+  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{platform}/{testFilePath}/{arg}{ext}',
   use: {
     baseURL: env.baseURL,
     testIdAttribute: 'data-testid',

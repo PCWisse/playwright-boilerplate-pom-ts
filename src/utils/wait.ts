@@ -22,12 +22,7 @@ export interface PollOptions {
  * conditions that are not expressible as a locator assertion, such as waiting
  * on external state.
  */
-export async function pollUntil(
-  predicate: () => Promise<boolean>,
-  options: PollOptions,
-): Promise<void> {
+export async function pollUntil(predicate: () => Promise<boolean>, options: PollOptions): Promise<void> {
   const { description, timeoutMs = 30_000, intervalMs = 250 } = options;
-  await expect
-    .poll(predicate, { timeout: timeoutMs, intervals: [intervalMs], message: description })
-    .toBe(true);
+  await expect.poll(predicate, { timeout: timeoutMs, intervals: [intervalMs], message: description }).toBe(true);
 }

@@ -5,15 +5,7 @@ import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: [
-      'node_modules/',
-      'playwright-report/',
-      'blob-report/',
-      'allure-results/',
-      'allure-report/',
-      'test-results/',
-      'demo-app/public/**/*.js',
-    ],
+    ignores: ['node_modules/', 'playwright-report/', 'blob-report/', 'allure-results/', 'allure-report/', 'test-results/', 'demo-app/public/**/*.js'],
   },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -28,10 +20,7 @@ export default tseslint.config(
       // The rule the Playwright best-practices guide calls out by name:
       // it catches a missing `await` on a Playwright call.
       '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
-      ],
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
       '@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
       '@typescript-eslint/no-unnecessary-condition': 'off',
     },

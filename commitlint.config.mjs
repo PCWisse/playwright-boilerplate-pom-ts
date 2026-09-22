@@ -6,26 +6,7 @@
 export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'scope-enum': [
-      2,
-      'always',
-      [
-        'api',
-        'a11y',
-        'ci',
-        'components',
-        'config',
-        'demo-app',
-        'deps',
-        'docker',
-        'docs',
-        'fixtures',
-        'plan',
-        'reporting',
-        'ui',
-        'visual',
-      ],
-    ],
+    'scope-enum': [2, 'always', ['api', 'a11y', 'ci', 'components', 'config', 'demo-app', 'deps', 'docker', 'docs', 'fixtures', 'plan', 'reporting', 'ui', 'visual']],
     'header-max-length': [2, 'always', 100],
   },
 };

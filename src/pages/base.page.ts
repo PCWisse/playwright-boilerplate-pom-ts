@@ -21,9 +21,7 @@ export abstract class BasePage {
   }
 
   get loadingIndicator(): Locator | null {
-    return this.loadingIndicatorTestId === null
-      ? null
-      : this.page.getByTestId(this.loadingIndicatorTestId);
+    return this.loadingIndicatorTestId === null ? null : this.page.getByTestId(this.loadingIndicatorTestId);
   }
 
   async goto(): Promise<void> {

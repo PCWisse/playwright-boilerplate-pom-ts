@@ -22,23 +22,19 @@ test.describe('Login', () => {
     await expect(page.getByTestId('current-user')).toHaveText(STANDARD_USER.username);
   });
 
-  test(
-    'shows an error for invalid credentials',
-    { tag: ['@regression'] },
-    async ({ loginPage }) => {
-      await annotate({
-        severity: 'critical',
-        epic: 'Authentication',
-        feature: 'Sign in',
-        story: 'Invalid credentials are rejected',
-        issue: 'SHOP-102',
-      });
+  test('shows an error for invalid credentials', { tag: ['@regression'] }, async ({ loginPage }) => {
+    await annotate({
+      severity: 'critical',
+      epic: 'Authentication',
+      feature: 'Sign in',
+      story: 'Invalid credentials are rejected',
+      issue: 'SHOP-102',
+    });
 
-      await loginPage.goto();
-      await loginPage.login(INVALID_USER.username, INVALID_USER.password);
+    await loginPage.goto();
+    await loginPage.login(INVALID_USER.username, INVALID_USER.password);
 
-      await expect(loginPage.errorMessage).toBeVisible();
-      await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
-    },
-  );
+    await expect(loginPage.errorMessage).toBeVisible();
+    await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
+  });
 });

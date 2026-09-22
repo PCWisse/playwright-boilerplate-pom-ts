@@ -261,15 +261,7 @@ import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: [
-      'node_modules/',
-      'playwright-report/',
-      'blob-report/',
-      'allure-results/',
-      'allure-report/',
-      'test-results/',
-      'demo-app/public/**/*.js',
-    ],
+    ignores: ['node_modules/', 'playwright-report/', 'blob-report/', 'allure-results/', 'allure-report/', 'test-results/', 'demo-app/public/**/*.js'],
   },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -284,10 +276,7 @@ export default tseslint.config(
       // The rule the Playwright best-practices guide calls out by name:
       // it catches a missing `await` on a Playwright call.
       '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
-      ],
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
       '@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
       '@typescript-eslint/no-unnecessary-condition': 'off',
     },
@@ -491,11 +480,7 @@ export function validateItemInput(body: unknown): { error: string; field: string
   if (typeof candidate.price !== 'number' || candidate.price < 0) {
     return { error: 'price must be a number >= 0', field: 'price' };
   }
-  if (
-    typeof candidate.quantity !== 'number' ||
-    !Number.isInteger(candidate.quantity) ||
-    candidate.quantity < 0
-  ) {
+  if (typeof candidate.quantity !== 'number' || !Number.isInteger(candidate.quantity) || candidate.quantity < 0) {
     return { error: 'quantity must be an integer >= 0', field: 'quantity' };
   }
   return null;
@@ -572,20 +557,12 @@ async function serveStatic(pathname: string, response: ServerResponse): Promise<
   }
 }
 
-async function handleApi(
-  request: IncomingMessage,
-  response: ServerResponse,
-  pathname: string,
-  store: ItemStore,
-): Promise<void> {
+async function handleApi(request: IncomingMessage, response: ServerResponse, pathname: string, store: ItemStore): Promise<void> {
   const method = request.method ?? 'GET';
 
   if (pathname === '/api/login' && method === 'POST') {
     const body = (await readBody(request)) as { username?: string; password?: string } | null;
-    if (
-      body?.username === VALID_CREDENTIALS.username &&
-      body.password === VALID_CREDENTIALS.password
-    ) {
+    if (body?.username === VALID_CREDENTIALS.username && body.password === VALID_CREDENTIALS.password) {
       sendJson(response, 201, { token: TOKEN, username: body.username });
     } else {
       sendJson(response, 401, { error: 'Invalid username or password' });
@@ -810,13 +787,7 @@ button {
         <label for="username">Username</label>
         <input id="username" name="username" data-testid="username" autocomplete="username" />
         <label for="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          data-testid="password"
-          autocomplete="current-password"
-        />
+        <input id="password" name="password" type="password" data-testid="password" autocomplete="current-password" />
         <button type="submit" data-testid="login-submit">Sign in</button>
       </form>
       <p class="error" data-testid="login-error" role="alert" hidden></p>
@@ -932,8 +903,7 @@ function render() {
   emptyState.hidden = visible.length > 0;
 }
 
-document.querySelector('[data-testid="current-user"]').textContent =
-  localStorage.getItem('auth-user') ?? '';
+document.querySelector('[data-testid="current-user"]').textContent = localStorage.getItem('auth-user') ?? '';
 
 document.querySelector('[data-testid="logout"]').addEventListener('click', () => {
   localStorage.clear();
@@ -999,8 +969,7 @@ const token = localStorage.getItem('auth-token');
 if (!token) {
   window.location.replace('/login.html');
 }
-document.querySelector('[data-testid="current-user"]').textContent =
-  localStorage.getItem('auth-user') ?? '';
+document.querySelector('[data-testid="current-user"]').textContent = localStorage.getItem('auth-user') ?? '';
 document.querySelector('[data-testid="logout"]').addEventListener('click', () => {
   localStorage.clear();
   window.location.assign('/login.html');
@@ -1184,12 +1153,8 @@ const schema = z.object({
 const parsed = schema.safeParse(process.env);
 
 if (!parsed.success) {
-  const issues = parsed.error.issues
-    .map((issue) => `  ${issue.path.join('.')}: ${issue.message}`)
-    .join('\n');
-  throw new Error(
-    `Invalid environment configuration. Copy .env.example to .env and fix:\n${issues}`,
-  );
+  const issues = parsed.error.issues.map((issue) => `  ${issue.path.join('.')}: ${issue.message}`).join('\n');
+  throw new Error(`Invalid environment configuration. Copy .env.example to .env and fix:\n${issues}`);
 }
 
 export const env = {
@@ -1242,13 +1207,8 @@ export default defineConfig({
   },
   reporter: isCI
     ? [['github'], ['blob'], ['allure-playwright', { resultsDir: 'allure-results', detail: false }]]
-    : [
-        ['list'],
-        ['html', { open: 'never' }],
-        ['allure-playwright', { resultsDir: 'allure-results', detail: false }],
-      ],
-  snapshotPathTemplate:
-    '{testDir}/__screenshots__/{projectName}/{platform}/{testFilePath}/{arg}{ext}',
+    : [['list'], ['html', { open: 'never' }], ['allure-playwright', { resultsDir: 'allure-results', detail: false }]],
+  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{platform}/{testFilePath}/{arg}{ext}',
   use: {
     baseURL: env.baseURL,
     testIdAttribute: 'data-testid',
@@ -1404,14 +1364,9 @@ export interface PollOptions {
  * conditions that are not expressible as a locator assertion, such as waiting
  * on external state.
  */
-export async function pollUntil(
-  predicate: () => Promise<boolean>,
-  options: PollOptions,
-): Promise<void> {
+export async function pollUntil(predicate: () => Promise<boolean>, options: PollOptions): Promise<void> {
   const { description, timeoutMs = 30_000, intervalMs = 250 } = options;
-  await expect
-    .poll(predicate, { timeout: timeoutMs, intervals: [intervalMs], message: description })
-    .toBe(true);
+  await expect.poll(predicate, { timeout: timeoutMs, intervals: [intervalMs], message: description }).toBe(true);
 }
 ```
 
@@ -1476,9 +1431,7 @@ export class TableComponent extends BaseComponent {
     const headers = await this.headerNames();
     const index = headers.indexOf(name);
     if (index === -1) {
-      throw new Error(
-        `Column "${name}" not found. Available columns: ${headers.join(', ') || '(none)'}`,
-      );
+      throw new Error(`Column "${name}" not found. Available columns: ${headers.join(', ') || '(none)'}`);
     }
     return index;
   }
@@ -1566,9 +1519,7 @@ export abstract class BasePage {
   }
 
   get loadingIndicator(): Locator | null {
-    return this.loadingIndicatorTestId === null
-      ? null
-      : this.page.getByTestId(this.loadingIndicatorTestId);
+    return this.loadingIndicatorTestId === null ? null : this.page.getByTestId(this.loadingIndicatorTestId);
   }
 
   async goto(): Promise<void> {
@@ -1986,17 +1937,13 @@ test.describe('Login', () => {
     await expect(page.getByTestId('current-user')).toHaveText(STANDARD_USER.username);
   });
 
-  test(
-    'shows an error for invalid credentials',
-    { tag: ['@regression'] },
-    async ({ loginPage }) => {
-      await loginPage.goto();
-      await loginPage.login(INVALID_USER.username, INVALID_USER.password);
+  test('shows an error for invalid credentials', { tag: ['@regression'] }, async ({ loginPage }) => {
+    await loginPage.goto();
+    await loginPage.login(INVALID_USER.username, INVALID_USER.password);
 
-      await expect(loginPage.errorMessage).toBeVisible();
-      await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
-    },
-  );
+    await expect(loginPage.errorMessage).toBeVisible();
+    await expect(loginPage.errorMessage).toHaveText('Invalid username or password');
+  });
 });
 ```
 
@@ -2083,12 +2030,8 @@ test.describe('Item form', () => {
     // Soft assertions collect all three failures instead of stopping at the
     // first one, so a single run tells you every field that is wrong.
     await expect.soft(formPage.fieldError('name')).toHaveText('Name is required');
-    await expect
-      .soft(formPage.fieldError('price'))
-      .toHaveText('Price must be a number of 0 or more');
-    await expect
-      .soft(formPage.fieldError('quantity'))
-      .toHaveText('Quantity must be a whole number of 0 or more');
+    await expect.soft(formPage.fieldError('price')).toHaveText('Price must be a number of 0 or more');
+    await expect.soft(formPage.fieldError('quantity')).toHaveText('Quantity must be a whole number of 0 or more');
     await expect(formPage.successMessage).toBeHidden();
   });
 });
@@ -2100,28 +2043,22 @@ test.describe('Item form', () => {
 import { expect, test } from '../../src/fixtures';
 
 test.describe('Network mocking', () => {
-  test(
-    'renders whatever the API returns',
-    { tag: ['@regression'] },
-    async ({ inventoryPage, page }) => {
-      // Mocking pins the data the UI receives, so the assertion cannot be
-      // broken by a change in the backing store.
-      await page.route('**/api/items', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify([
-            { id: 'item-mock', name: 'Mocked Widget', price: 9.99, quantity: 3, createdAt: '' },
-          ]),
-        });
+  test('renders whatever the API returns', { tag: ['@regression'] }, async ({ inventoryPage, page }) => {
+    // Mocking pins the data the UI receives, so the assertion cannot be
+    // broken by a change in the backing store.
+    await page.route('**/api/items', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{ id: 'item-mock', name: 'Mocked Widget', price: 9.99, quantity: 3, createdAt: '' }]),
       });
+    });
 
-      await inventoryPage.goto();
+    await inventoryPage.goto();
 
-      await expect(inventoryPage.table.rows()).toHaveCount(1);
-      expect(await inventoryPage.table.cellText(0, 'Name')).toBe('Mocked Widget');
-    },
-  );
+    await expect(inventoryPage.table.rows()).toHaveCount(1);
+    expect(await inventoryPage.table.cellText(0, 'Name')).toBe('Mocked Widget');
+  });
 
   test('surfaces an empty list when the API returns nothing', async ({ inventoryPage, page }) => {
     await page.route('**/api/items', async (route) => {
@@ -2231,13 +2168,7 @@ export interface ItemInput {
 import type { APIRequestContext, APIResponse } from '@playwright/test';
 import type { ZodType } from 'zod';
 
-import {
-  itemListSchema,
-  itemSchema,
-  loginResponseSchema,
-  type Item,
-  type ItemInput,
-} from './schemas';
+import { itemListSchema, itemSchema, loginResponseSchema, type Item, type ItemInput } from './schemas';
 
 /**
  * Typed client over Playwright's APIRequestContext.
@@ -2255,11 +2186,7 @@ export class ApiClient {
     this.token = token;
   }
 
-  static async login(
-    request: APIRequestContext,
-    username: string,
-    password: string,
-  ): Promise<string> {
+  static async login(request: APIRequestContext, username: string, password: string): Promise<string> {
     const response = await request.post('login', { data: { username, password } });
     const body = await ApiClient.unwrap(response, loginResponseSchema, 'POST /login', 201);
     return body.token;
@@ -2269,27 +2196,15 @@ export class ApiClient {
     return { authorization: `Bearer ${this.token}` };
   }
 
-  private static async unwrap<T>(
-    response: APIResponse,
-    schema: ZodType<T>,
-    context: string,
-    expectedStatus: number,
-  ): Promise<T> {
+  private static async unwrap<T>(response: APIResponse, schema: ZodType<T>, context: string, expectedStatus: number): Promise<T> {
     const raw = await response.text();
     if (response.status() !== expectedStatus) {
-      throw new Error(
-        `${context} expected HTTP ${String(expectedStatus)} but got ${String(response.status())}.\n` +
-          `URL: ${response.url()}\nBody: ${raw}`,
-      );
+      throw new Error(`${context} expected HTTP ${String(expectedStatus)} but got ${String(response.status())}.\n` + `URL: ${response.url()}\nBody: ${raw}`);
     }
     const parsed = schema.safeParse(JSON.parse(raw) as unknown);
     if (!parsed.success) {
-      const issues = parsed.error.issues
-        .map((issue) => `  ${issue.path.join('.') || '(root)'}: ${issue.message}`)
-        .join('\n');
-      throw new Error(
-        `${context} returned a body that does not match its schema:\n${issues}\nBody: ${raw}`,
-      );
+      const issues = parsed.error.issues.map((issue) => `  ${issue.path.join('.') || '(root)'}: ${issue.message}`).join('\n');
+      throw new Error(`${context} returned a body that does not match its schema:\n${issues}\nBody: ${raw}`);
     }
     return parsed.data;
   }
@@ -2317,9 +2232,7 @@ export class ApiClient {
   async deleteItem(id: string): Promise<void> {
     const response = await this.request.delete(`items/${id}`, { headers: this.headers });
     if (response.status() !== 204) {
-      throw new Error(
-        `DELETE /items/${id} expected HTTP 204 but got ${String(response.status())}: ${await response.text()}`,
-      );
+      throw new Error(`DELETE /items/${id} expected HTTP 204 but got ${String(response.status())}: ${await response.text()}`);
     }
   }
 
@@ -2508,20 +2421,16 @@ test.describe('Items API validation', () => {
 import { expect, test } from '../../src/fixtures';
 
 test.describe('API-seeded UI state', () => {
-  test(
-    'shows an item created over the API',
-    { tag: ['@regression'] },
-    async ({ inventoryPage, seededItem }) => {
-      // Setting up through the API keeps the test focused on the one UI
-      // behaviour it verifies, instead of re-testing the create form.
-      await inventoryPage.goto();
-      await inventoryPage.search(seededItem.name);
+  test('shows an item created over the API', { tag: ['@regression'] }, async ({ inventoryPage, seededItem }) => {
+    // Setting up through the API keeps the test focused on the one UI
+    // behaviour it verifies, instead of re-testing the create form.
+    await inventoryPage.goto();
+    await inventoryPage.search(seededItem.name);
 
-      await expect(inventoryPage.table.rows()).toHaveCount(1);
-      expect(await inventoryPage.table.cellText(0, 'Name')).toBe(seededItem.name);
-      expect(await inventoryPage.table.cellText(0, 'Quantity')).toBe(String(seededItem.quantity));
-    },
-  );
+    await expect(inventoryPage.table.rows()).toHaveCount(1);
+    expect(await inventoryPage.table.cellText(0, 'Name')).toBe(seededItem.name);
+    expect(await inventoryPage.table.cellText(0, 'Quantity')).toBe(String(seededItem.quantity));
+  });
 });
 ```
 
@@ -2660,64 +2569,48 @@ export { expect };
 import { expect, test } from '../../src/fixtures';
 
 test.describe('Accessibility', () => {
-  test(
-    'the inventory page has no WCAG A/AA violations',
-    { tag: ['@a11y', '@smoke'] },
-    async ({ inventoryPage, checkA11y }) => {
-      await inventoryPage.goto();
+  test('the inventory page has no WCAG A/AA violations', { tag: ['@a11y', '@smoke'] }, async ({ inventoryPage, checkA11y }) => {
+    await inventoryPage.goto();
 
-      const { violationIds } = await checkA11y();
+    const { violationIds } = await checkA11y();
 
-      expect(violationIds).toEqual([]);
-    },
-  );
+    expect(violationIds).toEqual([]);
+  });
 
-  test(
-    'the playground page reports its known violations',
-    { tag: ['@a11y'] },
-    async ({ a11yPage, checkA11y }) => {
-      // demo-app/public/a11y.html contains deliberate violations. Asserting the
-      // exact set proves the scan actually runs — a scan that silently returns
-      // nothing would otherwise look like a pass.
-      await a11yPage.goto();
+  test('the playground page reports its known violations', { tag: ['@a11y'] }, async ({ a11yPage, checkA11y }) => {
+    // demo-app/public/a11y.html contains deliberate violations. Asserting the
+    // exact set proves the scan actually runs — a scan that silently returns
+    // nothing would otherwise look like a pass.
+    await a11yPage.goto();
 
-      const { violationIds } = await checkA11y();
+    const { violationIds } = await checkA11y();
 
-      expect(violationIds).toEqual(['color-contrast', 'image-alt', 'label', 'link-name']);
-    },
-  );
+    expect(violationIds).toEqual(['color-contrast', 'image-alt', 'label', 'link-name']);
+  });
 
-  test(
-    'a scoped scan passes on the accessible region',
-    { tag: ['@a11y'] },
-    async ({ a11yPage, checkA11y }) => {
-      await a11yPage.goto();
+  test('a scoped scan passes on the accessible region', { tag: ['@a11y'] }, async ({ a11yPage, checkA11y }) => {
+    await a11yPage.goto();
 
-      const { violationIds } = await checkA11y({
-        include: '[data-testid="accessible-region"]',
-      });
+    const { violationIds } = await checkA11y({
+      include: '[data-testid="accessible-region"]',
+    });
 
-      expect(violationIds).toEqual([]);
-    },
-  );
+    expect(violationIds).toEqual([]);
+  });
 
-  test(
-    'documented exclusions narrow the scan',
-    { tag: ['@a11y'] },
-    async ({ a11yPage, checkA11y }) => {
-      await a11yPage.goto();
+  test('documented exclusions narrow the scan', { tag: ['@a11y'] }, async ({ a11yPage, checkA11y }) => {
+    await a11yPage.goto();
 
-      const { violationIds } = await checkA11y({
-        // Real-world pattern: exclude markup you do not control, and disable a
-        // rule only with a written reason. Here the low-contrast paragraph is
-        // treated as a known, accepted design decision.
-        disableRules: ['color-contrast'],
-      });
+    const { violationIds } = await checkA11y({
+      // Real-world pattern: exclude markup you do not control, and disable a
+      // rule only with a written reason. Here the low-contrast paragraph is
+      // treated as a known, accepted design decision.
+      disableRules: ['color-contrast'],
+    });
 
-      expect(violationIds).not.toContain('color-contrast');
-      expect(violationIds).toContain('image-alt');
-    },
-  );
+    expect(violationIds).not.toContain('color-contrast');
+    expect(violationIds).toContain('image-alt');
+  });
 });
 ```
 
@@ -2779,20 +2672,16 @@ test.describe('Inventory visuals', () => {
     });
   });
 
-  test(
-    'empty state matches the baseline',
-    { tag: ['@visual'] },
-    async ({ inventoryPage, page }) => {
-      await inventoryPage.goto();
-      await inventoryPage.search('nothing-matches-this');
-      await expect(inventoryPage.emptyState).toBeVisible();
+  test('empty state matches the baseline', { tag: ['@visual'] }, async ({ inventoryPage, page }) => {
+    await inventoryPage.goto();
+    await inventoryPage.search('nothing-matches-this');
+    await expect(inventoryPage.emptyState).toBeVisible();
 
-      await expect(page).toHaveScreenshot('inventory-empty-state.png', {
-        mask: [page.getByTestId('current-user')],
-        animations: 'disabled',
-      });
-    },
-  );
+    await expect(page).toHaveScreenshot('inventory-empty-state.png', {
+      mask: [page.getByTestId('current-user')],
+      animations: 'disabled',
+    });
+  });
 });
 ```
 
@@ -2804,22 +2693,15 @@ import { mockItems } from '../../src/utils/mock';
 import { expect, test } from '../../src/fixtures';
 
 test.describe('Component visuals', () => {
-  test(
-    'the inventory table matches its baseline',
-    { tag: ['@visual'] },
-    async ({ inventoryPage, page }) => {
-      await mockItems(page, CATALOGUE);
-      await inventoryPage.goto();
-      await expect(inventoryPage.table.rows()).toHaveCount(CATALOGUE.length);
+  test('the inventory table matches its baseline', { tag: ['@visual'] }, async ({ inventoryPage, page }) => {
+    await mockItems(page, CATALOGUE);
+    await inventoryPage.goto();
+    await expect(inventoryPage.table.rows()).toHaveCount(CATALOGUE.length);
 
-      // Component-scoped snapshots are far less brittle than full-page ones:
-      // unrelated layout changes elsewhere cannot break them.
-      await expect(inventoryPage.table.root.getByRole('table')).toHaveScreenshot(
-        'inventory-table.png',
-        { animations: 'disabled' },
-      );
-    },
-  );
+    // Component-scoped snapshots are far less brittle than full-page ones:
+    // unrelated layout changes elsewhere cannot break them.
+    await expect(inventoryPage.table.root.getByRole('table')).toHaveScreenshot('inventory-table.png', { animations: 'disabled' });
+  });
 });
 ```
 
@@ -3904,11 +3786,7 @@ docs
   "postCreateCommand": "npm ci",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "ms-playwright.playwright",
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
-      ],
+      "extensions": ["ms-playwright.playwright", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -4011,25 +3889,7 @@ git update-index --chmod=+x .husky/pre-commit .husky/commit-msg
 export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'scope-enum': [
-      2,
-      'always',
-      [
-        'api',
-        'a11y',
-        'ci',
-        'components',
-        'config',
-        'demo-app',
-        'deps',
-        'docker',
-        'docs',
-        'fixtures',
-        'reporting',
-        'ui',
-        'visual',
-      ],
-    ],
+    'scope-enum': [2, 'always', ['api', 'a11y', 'ci', 'components', 'config', 'demo-app', 'deps', 'docker', 'docs', 'fixtures', 'reporting', 'ui', 'visual']],
     'header-max-length': [2, 'always', 100],
   },
 };

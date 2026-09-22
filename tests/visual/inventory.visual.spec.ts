@@ -30,23 +30,19 @@ test.describe('Inventory visuals', () => {
     });
   });
 
-  test(
-    'empty state matches the baseline',
-    { tag: ['@visual'] },
-    async ({ inventoryPage, page }) => {
-      await inventoryPage.goto();
-      // Wait for the mocked rows before filtering. Without this the table may
-      // still be empty when the search runs, and the test would pass without
-      // the filter having done anything.
-      await expect(inventoryPage.table.rows()).toHaveCount(CATALOGUE.length);
+  test('empty state matches the baseline', { tag: ['@visual'] }, async ({ inventoryPage, page }) => {
+    await inventoryPage.goto();
+    // Wait for the mocked rows before filtering. Without this the table may
+    // still be empty when the search runs, and the test would pass without
+    // the filter having done anything.
+    await expect(inventoryPage.table.rows()).toHaveCount(CATALOGUE.length);
 
-      await inventoryPage.search('nothing-matches-this');
-      await expect(inventoryPage.emptyState).toBeVisible();
+    await inventoryPage.search('nothing-matches-this');
+    await expect(inventoryPage.emptyState).toBeVisible();
 
-      await expect(page).toHaveScreenshot('inventory-empty-state.png', {
-        mask: [inventoryPage.nav.currentUser],
-        animations: 'disabled',
-      });
-    },
-  );
+    await expect(page).toHaveScreenshot('inventory-empty-state.png', {
+      mask: [inventoryPage.nav.currentUser],
+      animations: 'disabled',
+    });
+  });
 });

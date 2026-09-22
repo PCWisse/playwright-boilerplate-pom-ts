@@ -73,12 +73,7 @@ function redact(value: unknown): unknown {
     return value.map(redact);
   }
   if (typeof value === 'object' && value !== null) {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, nested]) => [
-        key,
-        SECRET_KEY.test(key) ? REDACTED : redact(nested),
-      ]),
-    );
+    return Object.fromEntries(Object.entries(value).map(([key, nested]) => [key, SECRET_KEY.test(key) ? REDACTED : redact(nested)]));
   }
   return value;
 }
@@ -106,7 +101,5 @@ export function sanitiseBody(raw: string): string {
     // cannot be applied safely to an unknown format.
   }
 
-  return text.length > MAX_BODY_CHARS
-    ? `${text.slice(0, MAX_BODY_CHARS)}\n… truncated, ${String(text.length - MAX_BODY_CHARS)} more characters`
-    : text;
+  return text.length > MAX_BODY_CHARS ? `${text.slice(0, MAX_BODY_CHARS)}\n… truncated, ${String(text.length - MAX_BODY_CHARS)} more characters` : text;
 }

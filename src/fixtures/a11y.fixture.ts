@@ -57,8 +57,7 @@ export const a11yTest = base.extend<A11yFixtures>({
       // An empty `tags` array would make axe run NO rules and return no
       // violations — a silent pass that looks identical to a clean page.
       // Treat it as "unset" so the scan can never become vacuous.
-      const tags =
-        options.tags !== undefined && options.tags.length > 0 ? options.tags : DEFAULT_TAGS;
+      const tags = options.tags !== undefined && options.tags.length > 0 ? options.tags : DEFAULT_TAGS;
 
       let builder = new AxeBuilder({ page }).withTags(tags);
 

@@ -100,8 +100,8 @@ it. When CI fails and you cannot reproduce locally, open the trace first.
 
 ## 3. What is installed, and why
 
-Everything is a **devDependency** — this project ships no runtime code, so there
-is deliberately no `dependencies` block.
+Everything is a **devDependency** in the package json.
+This project ships no runtime code, so there is deliberately no `dependencies` block.
 
 ### The runner
 
@@ -113,9 +113,9 @@ is deliberately no `dependencies` block.
 
 | Package                                     | Why                                                           |
 | ------------------------------------------- | ------------------------------------------------------------- |
-| `typescript`                                | Strict mode, including `noUncheckedIndexedAccess`             |
+| `typescript`                                | Strict mode, including`noUncheckedIndexedAccess`              |
 | `typescript-eslint`, `eslint`, `@eslint/js` | Type-aware linting — catches bugs a syntax-only linter cannot |
-| `eslint-plugin-playwright`                  | Playwright-specific rules, e.g. banning `waitForTimeout`      |
+| `eslint-plugin-playwright`                  | Playwright-specific rules, e.g. banning`waitForTimeout`       |
 | `prettier`, `eslint-config-prettier`        | Formatting, with the overlap disabled in ESLint               |
 | `tsx`                                       | Runs the demo app's TypeScript directly, no build step        |
 
@@ -127,14 +127,14 @@ is deliberately no `dependencies` block.
 | `@faker-js/faker`                  | Random test data, so parallel workers never collide                   |
 | `date-fns`                         | Date maths                                                            |
 | `@axe-core/playwright`, `axe-core` | The accessibility engine                                              |
-| `dotenv`                           | Loads `.env` for local runs                                           |
+| `dotenv`                           | Loads`.env` for local runs                                            |
 
 ### Reporting
 
 | Package                                  | Why                                                 |
 | ---------------------------------------- | --------------------------------------------------- |
 | `allure-playwright`, `allure-js-commons` | Richer reporting: severities, ticket links, history |
-| `allure-commandline`                     | Renders the Allure HTML — **needs a JVM**           |
+| `allure-commandline`                     | Renders the Allure HTML —**needs a JVM**            |
 
 ### Repository hygiene
 

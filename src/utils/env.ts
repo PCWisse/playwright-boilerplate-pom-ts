@@ -13,12 +13,8 @@ const schema = z.object({
 const parsed = schema.safeParse(process.env);
 
 if (!parsed.success) {
-  const issues = parsed.error.issues
-    .map((issue) => `  ${issue.path.join('.')}: ${issue.message}`)
-    .join('\n');
-  throw new Error(
-    `Invalid environment configuration. Copy .env.example to .env and fix:\n${issues}`,
-  );
+  const issues = parsed.error.issues.map((issue) => `  ${issue.path.join('.')}: ${issue.message}`).join('\n');
+  throw new Error(`Invalid environment configuration. Copy .env.example to .env and fix:\n${issues}`);
 }
 
 /**

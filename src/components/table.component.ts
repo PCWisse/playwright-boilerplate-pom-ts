@@ -40,9 +40,7 @@ export class TableComponent extends BaseComponent {
     const headers = await this.headerNames();
     const index = headers.indexOf(name);
     if (index === -1) {
-      throw new Error(
-        `Column "${name}" not found. Available columns: ${headers.join(', ') || '(none)'}`,
-      );
+      throw new Error(`Column "${name}" not found. Available columns: ${headers.join(', ') || '(none)'}`);
     }
     return index;
   }

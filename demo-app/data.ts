@@ -84,11 +84,7 @@ export function validateItemInput(body: unknown): { error: string; field: string
   if (typeof candidate.price !== 'number' || candidate.price < 0) {
     return { error: 'price must be a number >= 0', field: 'price' };
   }
-  if (
-    typeof candidate.quantity !== 'number' ||
-    !Number.isInteger(candidate.quantity) ||
-    candidate.quantity < 0
-  ) {
+  if (typeof candidate.quantity !== 'number' || !Number.isInteger(candidate.quantity) || candidate.quantity < 0) {
     return { error: 'quantity must be an integer >= 0', field: 'quantity' };
   }
   return null;
